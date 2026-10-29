@@ -1,0 +1,5 @@
+import {$,esc,peso,ic} from '../util.js';
+import {S,calc} from '../state.js';
+import {tone,topbar} from '../ui.js';
+function budgets(){const s=calc();return topbar('Budgets',`Plan ${peso(s.budget)} against income ${peso(s.income)}`)+`<section class="full fade"><div class="sec"><h2>${S.cats.length} categories</h2><button class="btn sm" data-act="addcat">${ic('plus','sm')}Category</button></div><div class="grid2">${S.cats.map(c=>{const sp=s.by[c.id]||0,o=sp>c.budget,p=c.budget?Math.min(100,sp/c.budget*100):0;return `<div class="bc"><div class="h">${tone(c.hue,c.icon)}<button class="n" data-editcat="${c.id}"><b>${esc(c.name)}</b><span class="s">${c.due?'Bill · due day '+c.due:'Everyday spending'}</span></button><input type="number" inputmode="decimal" min="0" step="any" value="${c.budget}" data-bud="${c.id}" aria-label="Budget for ${esc(c.name)}"></div><div class="bar"><i style="width:${p}%;background:${o?'var(--bad)':`hsl(${c.hue} 75% 48%)`}"></i></div><div class="f"><span>${peso(sp)} spent</span><span class="${o?'over':''}">${o?'Over by '+peso(sp-c.budget):peso(c.budget-sp)+' left'}</span></div></div>`}).join('')}</div></section>`}
+export {budgets};

@@ -1,0 +1,5 @@
+import {$,esc,peso,ic} from '../util.js';
+import {S} from '../state.js';
+import {tone,topbar} from '../ui.js';
+function goals(){return topbar('Goals','Money set aside for later')+`<section class="full fade"><div class="sec"><h2>${S.goals.length} goals</h2><button class="btn sm" data-act="addgoal">${ic('plus','sm')}Goal</button></div><div class="grid2">${S.goals.length?S.goals.map(g=>{const p=Math.min(100,g.saved/g.target*100);return `<div class="bc"><div class="h">${tone(68,'target')}<button class="n" data-editgoal="${g.id}"><b>${esc(g.name)}</b><span class="s">${peso(g.target-g.saved>0?g.target-g.saved:0)} to go</span></button><button class="btn sm g" data-fund="${g.id}">${ic('plus','sm')}Add</button></div><div class="bar"><i style="width:${p}%;background:var(--accent)"></i></div><div class="f"><span>${peso(g.saved)} of ${peso(g.target)}</span><span>${Math.round(p)}%</span></div></div>`}).join(''):`<div class="empty full">${ic('target','lg')}No goals yet.</div>`}</div></section>`}
+export {goals};
