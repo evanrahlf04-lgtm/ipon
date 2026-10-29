@@ -6,8 +6,8 @@ export const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':mq.matche
 
 // Keeps the toggle icon and the browser/status-bar colour in step with the active theme.
 function paint(){
- const dk=isDark(),meta=document.querySelector('meta[name=theme-color]'),use=document.querySelector('#theme use');
- if(meta)meta.setAttribute('content',dk?'#12141a':'#f3eeea');
+ const dk=isDark(),metas=document.querySelectorAll('meta[name=theme-color]'),use=document.querySelector('#theme use');
+ metas.forEach((m,i)=>{if(i){m.remove();return}m.removeAttribute('media');m.setAttribute('content',dk?'#12141a':'#f3eeea')});
  if(use)use.setAttribute('href',dk?'#i-sun':'#i-moon');
  const b=document.querySelector('#theme');if(b){b.title=dk?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',b.title)}
 }

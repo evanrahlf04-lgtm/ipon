@@ -11,7 +11,7 @@ export default defineConfig({
         name: 'Ipon',
         short_name: 'Ipon',
         description: 'Mag-ipon tayo. Budget, goals and Philippine tax estimates.',
-        theme_color: '#dcff00',
+        theme_color: '#f3eeea',
         background_color: '#ebe8fb',
         display: 'standalone',
         start_url: '.',
