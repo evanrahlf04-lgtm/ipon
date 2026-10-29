@@ -1,13 +1,13 @@
 import {$,peso,ds,HUES,uid,ic} from './util.js';
-import {TK,T,cur,tl,S,setCur,setView,setQ,setFt,setFc,setTl,setS,isCur,dim,emptyState,norm,save,mk,cat} from './state.js';
+import {T,cur,tl,S,setCur,setView,setQ,setFt,setFc,setTl,setS,isCur,dim,emptyState,norm,save,mk,cat} from './state.js';
 import {signOut} from './session.js';
+import {toggleTheme} from './theme.js';
 import {toast} from './ui.js';
 import {modal,amt,openTx,catModal,goalModal,accountSheet} from './modals.js';
 import {saveFile,csv} from './files.js';
 import {render} from './render.js';
 import {taxRes,empCalc} from './views/tax.js';
 import {txPart} from './views/home.js';
-function toggleTheme(){const r=document.documentElement,dk=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.classList.add('tt');r.dataset.theme=dk?'light':'dark';try{localStorage.setItem(TK,r.dataset.theme)}catch(x){}setTimeout(()=>r.classList.remove('tt'),400)}
 // Re-draws only the transaction list so typing in search never rebuilds the whole page.
 function refreshList(){const l=$('#txlist');if(!l)return;const p=txPart();l.innerHTML=p.html;const c=$('#tcount');if(c)c.textContent=p.count+' total'}
 document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]'),act=A&&A.dataset.act;
