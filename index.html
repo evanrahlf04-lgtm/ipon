@@ -42,8 +42,8 @@
 <symbol id="i-phone" viewBox="0 0 24 24"><path d="M8 3h8a1.5 1.5 0 0 1 1.5 1.5v15A1.5 1.5 0 0 1 16 21H8a1.5 1.5 0 0 1-1.5-1.5v-15A1.5 1.5 0 0 1 8 3ZM11 18h2"/></symbol>
 <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9H4v-9ZM3 8h18v3H3V8ZM12 8v12M12 8c-2.5 0-4-1-4-2.5S9.5 3 12 8ZM12 8c2.5 0 4-1 4-2.5S14.5 3 12 8Z"/></symbol>
 <symbol id="i-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5 3" opacity=".7"/><path d="M20 12.5v11M15.5 19l4.5 4.7 4.5-4.7M14 27.5h12" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-tax" viewBox="0 0 24 24"><path d="M19 5 5 19M7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2ZM10 21h4"/></symbol><symbol id="i-sel" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol></defs></svg>
-<div class="app open" id="app">
+<symbol id="i-tax" viewBox="0 0 24 24"><path d="M19 5 5 19M7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2ZM10 21h4"/></symbol><symbol id="i-sel" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol><symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H10M15 8l4 4-4 4M19 12H9"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol></defs></svg>
+<div class="app open" id="app" hidden>
  <nav class="side" id="nav" aria-label="Main">
   <div class="logorow"><svg class="logo"><use href="#i-logo"/></svg><span class="brand"><b>ipon</b><small>Mag-ipon tayo.</small></span></div>
   <span class="nl">General</span>
@@ -53,11 +53,12 @@
   <button class="nav" data-v="report" aria-label="Report" title="Report"><svg class="i"><use href="#i-chart"/></svg><span class="lbl">Report</span></button>
   <button class="nav" data-v="tax" aria-label="Tax" title="Tax"><svg class="i"><use href="#i-tax"/></svg><span class="lbl">Tax</span></button>
   <div class="sp"></div>
+  <button class="nav" data-act="signout" aria-label="Sign out" title="Sign out"><svg class="i"><use href="#i-logout"/></svg><span class="lbl">Sign out</span></button>
   <button class="nav" id="theme" aria-label="Toggle theme" title="Toggle theme"><svg class="i"><use href="#i-moon"/></svg><span class="lbl">Light / dark</span></button>
   <button class="nav" id="collapse" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><svg class="i chev"><use href="#i-l"/></svg><span class="lbl">Collapse</span></button>
  </nav>
  <div class="main" id="main"></div>
 </div>
-<div id="modal"></div><div id="toast"></div>
+<div id="auth" hidden></div><div id="modal"></div><div id="toast"></div>
 <input type="file" id="file" accept="application/json" hidden>
 <script type="module" src="/src/main.js"></script></body></html>

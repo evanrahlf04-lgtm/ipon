@@ -1,5 +1,6 @@
 import {$,peso,ds,HUES,uid,ic} from './util.js';
-import {TK,T,cur,q,ft,S,setCur,setView,setQ,setFt,setFc,setS,isCur,dim,seed,norm,save,cat} from './state.js';
+import {TK,T,cur,q,ft,S,setCur,setView,setQ,setFt,setFc,setS,isCur,dim,emptyState,norm,save,cat} from './state.js';
+import {signOut} from './session.js';
 import {toast} from './ui.js';
 import {modal,amt,openTx,catModal,goalModal} from './modals.js';
 import {saveFile,csv} from './files.js';
@@ -24,6 +25,7 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  const ph=t.closest('[data-hue]');if(ph){ph.closest('.picks').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===ph));ph.closest('.fld').querySelector('input[name=hue]').value=ph.dataset.hue;return}
  const sg=t.closest('#seg [data-ty]');if(sg){document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===sg));$('#cw').hidden=sg.dataset.ty==='income';return}
  if(!act)return;
+ if(act==='add'&&(A.dataset.ty||'expense')==='expense'&&!S.cats.length)return toast('Add a category first');
  if(act==='add')return openTx({id:uid(),date:isCur()?T:ds(cur.y,cur.m,1),type:A.dataset.ty||'expense',catId:S.cats[0]&&S.cats[0].id,amount:'',note:''},true);
  if(act==='income')return modal('Monthly income',amt(S.income),f=>{const v=parseFloat(f.get('a'));if(!(v>0))return false;S.income=v;toast('Income updated')});
  if(act==='useNet'){const T=S.tax,g=T.auto?S.income:T.gross,n=Math.round(empCalc(g,T.th,T.dm).net),old=S.income,oa=T.auto,og=T.gross;T.gross=g;T.auto=false;S.income=n;save();render();return toast(`Budget income set to ${peso(n)}`,()=>{S.income=old;T.auto=oa;T.gross=og;save();render()})}
@@ -33,8 +35,8 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  if(act==='restore')return $('#file').click();
  if(act==='addcat')return catModal({id:uid(),name:'',budget:0,due:0,icon:'tag',hue:HUES[S.cats.length%HUES.length]},true);
  if(act==='addgoal')return goalModal({id:uid(),name:'',target:0,saved:0},true);
- if(act==='clear'){const old=S.tax;setS({income:S.income,cats:S.cats,tx:[],goals:[],sample:false});norm(old);save();return render()}
- if(act==='reset'){const old=S.tax;setS(seed());norm(old);save();return render()}});
+ if(act==='wipe'){if(!confirm('Delete all your budget data? This cannot be undone.'))return;setS(emptyState());norm();save();toast('All data deleted');return render()}
+ if(act==='signout')return signOut()});
 document.addEventListener('change',e=>{if(e.target.id==='t13m'||e.target.id==='t13a'||e.target.id==='t13o'){const k={t13m:'mw',t13a:'abs',t13o:'ob'}[e.target.id];S.tax[k]=Math.max(0,parseFloat(e.target.value)||0);save();$('#taxres').innerHTML=taxRes();return}if(e.target.dataset&&e.target.dataset.cut){S.tax.cut[e.target.dataset.cut]=e.target.value;save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='tauto'){S.tax.auto=e.target.checked;if(!S.tax.auto)S.tax.gross=S.income;save();return render()}if(e.target.id==='tth'){S.tax.th=e.target.checked;save();return render()}if(e.target.id==='fc'){setFc(e.target.value);return render()}if(e.target.id==='ft2'){setFt(e.target.value);return render()}const b=e.target.closest('[data-bud]');if(b){const c=cat(b.dataset.bud),v=parseFloat(b.value);if(v>=0){c.budget=v;save();render();toast('Budget updated')}}});
 document.addEventListener('input',e=>{if(e.target.id==='t13a'||e.target.id==='t13o'){S.tax[e.target.id==='t13a'?'abs':'ob']=Math.max(0,parseFloat(e.target.value)||0);save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='tdm'){S.tax.dm=Math.max(0,parseFloat(e.target.value)||0);save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='tg'){S.tax.gross=parseFloat(e.target.value)||0;save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='q'){setQ(e.target.value);const p=e.target.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(p,p)}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.close)modal.close()});
