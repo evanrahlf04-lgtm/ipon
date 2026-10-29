@@ -42,7 +42,13 @@ export async function signOut(){
  await sb.auth.signOut();
 }
 
+async function demo(){
+ const {demoState}=await import('./demo.js');
+ setUser({id:'demo',email:'demo@local'});adopt(demoState(),Date.now());hideAuth();app().hidden=false;render();
+}
+
 export function start(){
+ if(import.meta.env.DEV&&new URLSearchParams(location.search).has('demo'))return demo();
  if(!configured){app().hidden=true;showAuth('setup');return}
  sb.auth.onAuthStateChange((ev,session)=>{
   // Supabase asks that callbacks do not await its own calls, so defer the work.

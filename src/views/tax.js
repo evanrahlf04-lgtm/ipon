@@ -63,4 +63,4 @@ function tax(){const T=S.tax,g=T.auto?S.income:T.gross,emp=T.mode==='employee';
  <li>De minimis benefits (rice, uniform, medical and similar allowances) are exempt only up to BIR limits per item, and any excess is taxable. I did not check those limits here, so confirm your ₱3,000 is fully within them.</li>
  <li>13th month pay: total basic salary earned in the year divided by 12 (PD 851), paid by December 24, reduced by unpaid absences. The first ₱90,000 of 13th month pay and other bonuses is tax-exempt. Source: TotalCalcHub 13th month guide; ₱90,000 ceiling also in the Filepino de minimis guide.</li>
  <li>Your employer's payroll may withhold differently month to month. Treat this as a planning estimate, and confirm with your payroll or an accountant before filing.</li></ul></details></section>`}
-export {tax};
+export {tax,taxRes,empCalc};
