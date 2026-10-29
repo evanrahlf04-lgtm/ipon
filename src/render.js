@@ -7,6 +7,8 @@ import {budgets} from './views/budgets.js';
 import {goals} from './views/goals.js';
 import {report} from './views/report.js';
 
+// The floating button always does the most useful add for the page you are on.
+const FAB={home:['add','Add expense'],report:['add','Add expense'],budgets:['addcat','Add category'],goals:['addgoal','Add goal']};
 const views={home,budgets,goals,report,tax};
 const still=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
 let lastView=null,lastMonth=null,raf=0;
@@ -30,7 +32,7 @@ function render(){
  const kind=lastView!==view?'enter':lastMonth!==month?'swap':'';
  main.innerHTML=views[view]();
  document.querySelectorAll('.nav[data-v]').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.setAttribute('aria-current',b.dataset.v===view?'page':'false')});
- const fab=$('#fab');if(fab)fab.hidden=!(view==='home'||view==='budgets');
+ const fab=$('#fab'),fa=FAB[view];if(fab){fab.hidden=!fa;if(fa){fab.dataset.act=fa[0];fab.dataset.ty='expense';fab.setAttribute('aria-label',fa[1]);fab.title=fa[1]}}
  main.classList.remove('enter','swap');
  if(kind){void main.offsetWidth;main.classList.add(kind);countUp(main)}
  lastView=view;lastMonth=month;

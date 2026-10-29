@@ -1,6 +1,6 @@
-:root{--bg1:#ebe8fb;--bg2:#f3eeea;--bg3:#efe9c4;--glass:rgba(255,255,255,.55);--glass-b:rgba(255,255,255,.85);--ink:#0f1b1f;--mute:#7b8386;--line:rgba(15,27,31,.09);--accent:#dcff00;--accent-ink:#0f1b1f;--tile:rgba(15,27,31,.05);--hover:rgba(255,255,255,.7);--btn:#0f1b1f;--btnfg:#fff;--good:#0c7a55;--bad:#c23a3a;--bad-soft:rgba(194,58,58,.12);--sheet:#fbfaf6;--ts:75%;--tl:82%;--cs:40%;--cl:16%;--barmute:rgba(15,27,31,.14);--barhov:rgba(15,27,31,.26);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(15,27,31,.45);--shadow:0 24px 60px -24px rgba(60,50,100,.25);color-scheme:light dark}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#14121f;--bg2:#12141a;--bg3:#1b1c10;--glass:rgba(255,255,255,.05);--glass-b:rgba(255,255,255,.09);--ink:#f2f4ef;--mute:#8d9594;--line:rgba(255,255,255,.09);--tile:rgba(255,255,255,.06);--hover:rgba(255,255,255,.07);--btn:#f2f4ef;--btnfg:#0f1b1f;--good:#4fd6a0;--bad:#ff7a73;--bad-soft:rgba(255,122,115,.14);--sheet:#1a1c20;--ts:52%;--tl:27%;--cs:80%;--cl:80%;--barmute:rgba(255,255,255,.16);--barhov:rgba(255,255,255,.3);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(0,0,0,.65);--shadow:none;color-scheme:dark}}
-:root[data-theme="dark"]{--bg1:#14121f;--bg2:#12141a;--bg3:#1b1c10;--glass:rgba(255,255,255,.05);--glass-b:rgba(255,255,255,.09);--ink:#f2f4ef;--mute:#8d9594;--line:rgba(255,255,255,.09);--tile:rgba(255,255,255,.06);--hover:rgba(255,255,255,.07);--btn:#f2f4ef;--btnfg:#0f1b1f;--good:#4fd6a0;--bad:#ff7a73;--bad-soft:rgba(255,122,115,.14);--sheet:#1a1c20;--ts:52%;--tl:27%;--cs:80%;--cl:80%;--barmute:rgba(255,255,255,.16);--barhov:rgba(255,255,255,.3);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(0,0,0,.65);--shadow:none;color-scheme:dark}
+:root{--bg1:#ebe8fb;--bg2:#f3eeea;--bg3:#efe9c4;--glass:rgba(255,255,255,.72);--glass-b:rgba(15,27,31,.1);--ink:#0f1b1f;--mute:#7b8386;--line:rgba(15,27,31,.12);--accent:#dcff00;--accent-ink:#0f1b1f;--tile:rgba(15,27,31,.07);--hover:rgba(255,255,255,.7);--btn:#0f1b1f;--btnfg:#fff;--good:#0c7a55;--bad:#c23a3a;--bad-soft:rgba(194,58,58,.12);--sheet:#fbfaf6;--ts:75%;--tl:82%;--cs:40%;--cl:16%;--barmute:rgba(15,27,31,.14);--barhov:rgba(15,27,31,.26);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(15,27,31,.45);--shadow:0 24px 60px -24px rgba(60,50,100,.25);color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#14121f;--bg2:#12141a;--bg3:#1b1c10;--glass:rgba(255,255,255,.075);--glass-b:rgba(255,255,255,.16);--ink:#f2f4ef;--mute:#8d9594;--line:rgba(255,255,255,.14);--tile:rgba(255,255,255,.1);--hover:rgba(255,255,255,.07);--btn:#f2f4ef;--btnfg:#0f1b1f;--good:#4fd6a0;--bad:#ff7a73;--bad-soft:rgba(255,122,115,.14);--sheet:#1a1c20;--ts:52%;--tl:27%;--cs:80%;--cl:80%;--barmute:rgba(255,255,255,.16);--barhov:rgba(255,255,255,.3);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(0,0,0,.65);--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#14121f;--bg2:#12141a;--bg3:#1b1c10;--glass:rgba(255,255,255,.075);--glass-b:rgba(255,255,255,.16);--ink:#f2f4ef;--mute:#8d9594;--line:rgba(255,255,255,.14);--tile:rgba(255,255,255,.1);--hover:rgba(255,255,255,.07);--btn:#f2f4ef;--btnfg:#0f1b1f;--good:#4fd6a0;--bad:#ff7a73;--bad-soft:rgba(255,122,115,.14);--sheet:#1a1c20;--ts:52%;--tl:27%;--cs:80%;--cl:80%;--barmute:rgba(255,255,255,.16);--barhov:rgba(255,255,255,.3);--lime:#dcff00;--mint:#9ad8d0;--pink:#f4b4b8;--scrim:rgba(0,0,0,.65);--shadow:none;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);background:none;font:14px/1.45 'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;min-height:100vh;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;text-align:inherit}
@@ -299,3 +299,37 @@ html{background:var(--bg2)}
 body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(115deg,var(--bg1) 0%,var(--bg2) 48%,var(--bg3) 100%)}
 
 :root[data-theme="light"]{color-scheme:light}
+
+/* ---------- visibility: clearer cards, buttons and fields ---------- */
+.panel,.bc,.stat,.opt{box-shadow:var(--shadow),0 1px 0 rgba(255,255,255,.05) inset}
+:root[data-theme="dark"] .panel,:root[data-theme="dark"] .bc{box-shadow:0 12px 32px -14px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.07) inset}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .panel,:root:not([data-theme="light"]) .bc{box-shadow:0 12px 32px -14px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.07) inset}}
+.btn.g{border:1px solid var(--glass-b);background:var(--glass)}
+.btn.r{border:1px solid var(--bad-soft)}
+.fld input,.fld select{border:1px solid var(--glass-b)}
+.bc input{border:1px solid var(--glass-b)}
+.tpl{box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 8px 20px -12px rgba(0,0,0,.5)}
+.tile{box-shadow:0 8px 20px -14px rgba(0,0,0,.45)}
+
+/* ---------- thumb reach (phones) ---------- */
+@media(max-width:860px){
+ .app{padding-bottom:calc(168px + env(safe-area-inset-bottom,0px))}
+ .quick,.scs .scb,.sec>.btn.sm{display:none}
+ .btn{min-height:50px;font-size:15px}.btn.sm{min-height:44px;font-size:13px}
+ .cbtn{width:46px;height:46px}
+ .seg button{min-height:42px;padding:8px 18px}
+ .picks button{width:46px;height:46px}.picks.hues button{width:36px;height:36px}
+ .tr{min-height:64px}
+ .link{padding:10px 4px;margin:-10px -4px}
+ .acts{background:var(--sheet);padding:12px 0 2px;margin:0;border-top:1px solid var(--line)}
+ .acts .btn{min-height:52px}
+ .sheet{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+ .menu button{min-height:56px}
+ .fab{width:62px;height:62px;bottom:calc(94px + env(safe-area-inset-bottom,0px))}
+ .nav{height:50px}
+}
+/* keep the chart tooltips of the outer bars inside the screen */
+.tcol:last-child .tip{left:auto;right:0;transform:translate(0,6px)}
+.tcol:last-child:hover .tip,.tcol:last-child:focus-visible .tip{transform:none}
+.tcol:first-child .tip{left:0;transform:translate(0,6px)}
+.tcol:first-child:hover .tip,.tcol:first-child:focus-visible .tip{transform:none}
