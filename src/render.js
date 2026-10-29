@@ -1,6 +1,7 @@
 import {$} from './util.js';
 import {view,cur} from './state.js';
 import {money} from './ui.js';
+import {buildJump} from './jump.js';
 import {home} from './views/home.js';
 import {tax} from './views/tax.js';
 import {budgets} from './views/budgets.js';
@@ -33,6 +34,7 @@ function render(){
  main.innerHTML=views[view]();
  document.querySelectorAll('.nav[data-v]').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.setAttribute('aria-current',b.dataset.v===view?'page':'false')});
  const fab=$('#fab'),fa=FAB[view];if(fab){fab.hidden=!fa;if(fa){fab.dataset.act=fa[0];fab.dataset.ty='expense';fab.setAttribute('aria-label',fa[1]);fab.title=fa[1]}}
+ buildJump();
  main.classList.remove('enter','swap');
  if(kind){void main.offsetWidth;main.classList.add(kind);countUp(main)}
  lastView=view;lastMonth=month;

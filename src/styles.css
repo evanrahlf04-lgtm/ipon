@@ -333,3 +333,13 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .tcol:last-child:hover .tip,.tcol:last-child:focus-visible .tip{transform:none}
 .tcol:first-child .tip{left:0;transform:translate(0,6px)}
 .tcol:first-child:hover .tip,.tcol:first-child:focus-visible .tip{transform:none}
+
+/* ---------- jump bar ---------- */
+.jump{position:sticky;top:8px;z-index:8;display:flex;gap:6px;overflow-x:auto;padding:6px;margin:0 -2px;border-radius:99px;background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.jump::-webkit-scrollbar{display:none}
+.jump button{flex:none;padding:9px 16px;border-radius:99px;font-size:13px;font-weight:600;color:var(--mute);white-space:nowrap;transition:background .25s,color .25s,transform .15s}
+.jump button:hover{color:var(--ink);background:var(--hover)}
+.jump button:active{transform:scale(.95)}
+.jump button.on{background:var(--lime);color:#0f1b1f;font-weight:700}
+#main [data-sec],#main .panel,#main section.full{scroll-margin-top:84px}
+@media(max-width:860px){.jump{top:max(8px,env(safe-area-inset-top,0px));margin:0}.jump button{min-height:40px}}
