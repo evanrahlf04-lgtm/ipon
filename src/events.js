@@ -1,9 +1,9 @@
 import {$,peso,ds,HUES,uid,ic} from './util.js';
-import {T,cur,tl,S,setCur,setView,setQ,setFt,setFc,setTl,setS,isCur,dim,emptyState,norm,save,mk,cat} from './state.js';
+import {T,cur,tl,S,setCur,setView,setQ,setFt,setFc,setTl,setS,isCur,dim,emptyState,norm,save,mk,cat,calc} from './state.js';
 import {signOut} from './session.js';
 import {toggleTheme} from './theme.js';
 import {toast} from './ui.js';
-import {modal,amt,openTx,catModal,goalModal,accountSheet} from './modals.js';
+import {modal,fld,amt,openTx,catModal,goalModal,accountSheet} from './modals.js';
 import {saveFile,csv} from './files.js';
 import {render} from './render.js';
 import {taxRes,empCalc} from './views/tax.js';
@@ -34,7 +34,8 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  if(!act)return;
  if(act==='add'&&(A.dataset.ty||'expense')==='expense'&&!S.cats.length)return toast('Add a category first');
  if(act==='add')return openTx({id:uid(),date:isCur()?T:ds(cur.y,cur.m,1),type:A.dataset.ty||'expense',catId:S.cats[0]&&S.cats[0].id,amount:'',note:''},true);
- if(act==='income')return modal('Monthly income',amt(S.income),f=>{const v=parseFloat(f.get('a'));if(!(v>0))return false;S.income=v;toast('Income updated')});
+ if(act==='income'){const extra=calc().income-S.income;
+  return modal('Monthly income',fld('Monthly income (₱)','a','number',`inputmode="decimal" step="0.01" min="0" required value="${S.income||''}" placeholder="0"`,'big')+`<p class="note">This amount counts in every month. Income you log as a transaction is added to that one month only${extra>0?` (this month has ${peso(extra)} extra)`:''}.</p>`,f=>{const v=parseFloat(f.get('a'));if(!(v>=0))return false;S.income=v;toast('Income updated')})}
  if(act==='useNet'){const T=S.tax,g=T.auto?S.income:T.gross,n=Math.round(empCalc(g,T.th,T.dm).net),old=S.income,oa=T.auto,og=T.gross;T.gross=g;T.auto=false;S.income=n;save();render();return toast(`Budget income set to ${peso(n)}`,()=>{S.income=old;T.auto=oa;T.gross=og;save();render()})}
  if(act==='add13'){const T=S.tax,g=T.auto?S.income:T.gross,r=empCalc(g,T.th,T.dm),e={id:uid(),date:`${cur.y}-12-24`,type:'income',catId:null,amount:Math.round(r.net13*100)/100,note:'13th month pay'};S.tx.push(e);save();render();return toast('Added to December income',()=>{S.tx=S.tx.filter(x=>x!==e);save();render()})}
  if(act==='csv')return saveFile(`ipon-transactions.csv`,csv(),'text/csv');

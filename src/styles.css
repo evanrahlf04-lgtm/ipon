@@ -343,3 +343,10 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .jump button.on{background:var(--lime);color:#0f1b1f;font-weight:700}
 #main [data-sec],#main .panel,#main section.full{scroll-margin-top:84px}
 @media(max-width:860px){.jump{top:max(8px,env(safe-area-inset-top,0px));margin:0}.jump button{min-height:40px}}
+
+/* ---------- income edit buttons ---------- */
+.mrow{align-items:center}
+.incbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:99px;background:var(--glass);border:1px solid var(--glass-b);font-size:13px;color:var(--mute);transition:background .2s,transform .15s}
+.incbtn b{color:var(--ink)}.incbtn:hover{background:var(--hover)}.incbtn:active{transform:scale(.96)}
+.bsum .bs .bsi{display:block;text-align:left;border-radius:14px;margin:-6px;padding:6px;transition:background .2s}
+.bsum .bs .bsi:hover{background:var(--hover)}.bsum .bs .bsi small{display:flex;align-items:center;gap:4px}
