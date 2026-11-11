@@ -9,7 +9,10 @@ const dim=()=>new Date(cur.y,cur.m+1,0).getDate();
 const STARTER=[['Rent','house'],['Electricity','bolt'],['Water','drop'],['Internet','wifi'],['Transportation','bus'],['Groceries','cart'],['Eating out','fork'],['Health','heart'],['Shopping','shirt'],['Other','tag']];
 const emptyState=()=>({income:0,cats:STARTER.map((c,i)=>({id:'c'+i,name:c[0],budget:0,due:0,icon:c[1],hue:HUES[i%HUES.length]})),tx:[],goals:[]});
 let S=emptyState();
-function norm(old){S.tax=Object.assign({mode:'employee',auto:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},old||S.tax||{});S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0}
+function norm(old){const t=Object.assign({},old||S.tax||{});
+ // Older data had no link flag: keep an existing income as it was, and start new accounts linked to take-home pay.
+ if(t.link===undefined){if(S.income>0){if(!(t.gross>0))t.gross=S.income;t.link=false}else t.link=true}
+ S.tax=Object.assign({mode:'employee',link:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},t);S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0}
 norm();
 // Data is cached per user so two accounts on one browser never see each other's budget.
 const localKey=()=>`${KEY}:${user?user.id:'anon'}`;
