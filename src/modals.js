@@ -1,5 +1,5 @@
 import {$,esc,HUES,ICONS,ic,uid,peso,sym,CURRENCIES,curCode,setCurrency,MF,pad} from './util.js';
-import {T,S,user,setCur,save,cat,now,GROUPS,grpOf} from './state.js';
+import {T,S,user,setCur,save,cat,now,GROUPS,grpOf,isBalance} from './state.js';
 import {mkey,dateTxt,occ,overdue,monthOcc} from './bills.js';
 import {balance,linkBill,settleDebt,debtCat} from './debts.js';
 import {TYPES} from './views/debts.js';
@@ -8,7 +8,7 @@ import {contribs,saveCat,linkGoalBill,settleGoal} from './goals.js';
 import {crossMsg,spentBy} from './alerts.js';
 import {rate,cached,rateText,convertAll,refreshPHP,phpRate,ATTR} from './fx.js';
 import {syncIncome} from './views/tax.js';
-import {takeHome} from './views/tax.js';
+import {takeHome,pk} from './views/tax.js';
 import {toast} from './ui.js';
 import {render} from './render.js';
 // Dialog helpers: lock the page behind a dialog, give focus back when it closes, and keep Tab inside it.
@@ -125,6 +125,22 @@ function fxWire(){const sh=$('#sh');if(!sh)return;const sel=sh.querySelector('[n
 function fxApply(f){const c=f.get('fxc'),to=curCode();if(!c||c===to)return{};const a=parseFloat(f.get('a'));if(!(a>0))return{};
  const r=cached(c,to);if(!r){toast("Getting today's rate. Try again in a moment.");rate(c,to).catch(()=>{});return null}
  f.set('a',String(Math.round(a*r*100)/100));const g=parseFloat(f.get('gross'));if(g>0&&f.has('gross'))f.set('gross',String(Math.round(g*r*100)/100));return{fx:{a,c}}}
+// Where the budget starts from. Main choice: a starting amount (the money you have). Second choice: your salary.
+function baseModal(){
+ const sal=S.base==='salary',th=Math.round(takeHome(S.tax)*pk()*100)/100;
+ modal('Where does your money start?',
+  `<label class="choice"><input type="radio" name="mode" value="amount" ${sal?'':'checked'}><span class="cx"><b>Starting amount</b><small>The money you have right now. It stays as your balance: income you log adds to it and spending takes from it.</small></span></label>
+  <div id="bamt" class="bsec" ${sal?'hidden':''}>${fld('Starting amount ('+sym()+')','a','number',`inputmode="decimal" step="0.01" min="0" value="${sal?'':(S.start.amount||'')}" placeholder="0"`,'big')}
+   <label class="chk"><input type="checkbox" name="rep" ${S.start.repeat&&!sal?'checked':''}>Add this amount again every month instead</label>
+   <p class="note">${!sal&&!S.start.repeat&&S.start.date?'Counted from '+S.start.date+'. ':''}Changing the amount changes your balance from that date.</p></div>
+  <label class="choice"><input type="radio" name="mode" value="salary" ${sal?'checked':''}><span class="cx"><b>Use my salary</b><small>Your take-home pay from the Salary page is added to your money every month.</small></span></label>
+  <div id="bsal" class="bsec" ${sal?'':'hidden'}><p class="note">${S.tax.gross>0?'Your take-home pay is about <b>'+peso(th)+'</b> a month. Change your pay on the Salary page.':'You have not entered your pay yet. After saving, open the Salary page to enter it.'}</p></div>`,
+  f=>{
+   if(f.get('mode')==='salary'){S.base='salary';S.tax.link=true;syncIncome();toast('Your salary is now your base');return}
+   const v=parseFloat(f.get('a'));if(!(v>=0)){toast('Enter your starting amount');return false}
+   const rep=!!f.get('rep'),was=S.base==='amount'&&!S.start.repeat;
+   S.base='amount';S.tax.link=false;S.start={amount:v,repeat:rep,date:(was&&!rep)?S.start.date:T};S.income=rep?v:0;
+   toast(rep?'Fixed monthly amount set':'Starting amount set')})}
 // Choose the budget currency. Either convert every saved amount at today's rate, or only change the symbol.
 function currencyModal(){
  const from=curCode();
@@ -144,6 +160,6 @@ function currencyModal(){
   try{const r=await rate(from,c);if(sel.value!==c)return;note.innerHTML=esc(rateText(from,c,r))+'. '+ATTR}catch(e){note.textContent=e.message+' You can still change only the symbol.'}};
  sel.onchange=upd;upd()}
 function accountSheet(){const opener=document.activeElement;lock(true);const m=$('#modal'),dk=(document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches);
- m.innerHTML=`<div class="scrim" id="sc"><div class="sheet" id="sh" role="dialog" aria-modal="true" aria-label="Account"><div class="grab"></div><h3 class="serif">Account</h3><p class="sub" style="margin-top:-8px">${esc(user?user.email:'')}</p><div class="menu"><button data-act="theme">${ic('moon')}<span>${dk?'Switch to light mode':'Switch to dark mode'}</span></button><button data-act="csv">${ic('down')}<span>Export transactions (CSV)</span></button><button data-act="currency">${ic('wallet')}<span>Currency · ${curCode()} ${esc(sym().trim())}</span></button><button data-act="backup">${ic('down')}<span>Backup (JSON)</span></button><button data-act="restore">${ic('up')}<span>Restore backup</span></button><button data-act="signout" class="danger">${ic('logout')}<span>Sign out</span></button></div><button type="button" class="btn g" data-close>Close</button></div></div>`;
+ m.innerHTML=`<div class="scrim" id="sc"><div class="sheet" id="sh" role="dialog" aria-modal="true" aria-label="Account"><div class="grab"></div><h3 class="serif">Account</h3><p class="sub" style="margin-top:-8px">${esc(user?user.email:'')}</p><div class="menu"><button data-act="theme">${ic('moon')}<span>${dk?'Switch to light mode':'Switch to dark mode'}</span></button><button data-act="csv">${ic('down')}<span>Export transactions (CSV)</span></button><button data-act="income">${ic('wallet')}<span>Starting amount or salary</span></button><button data-act="currency">${ic('wallet')}<span>Currency · ${curCode()} ${esc(sym().trim())}</span></button><button data-act="backup">${ic('down')}<span>Backup (JSON)</span></button><button data-act="restore">${ic('up')}<span>Restore backup</span></button><button data-act="signout" class="danger">${ic('logout')}<span>Sign out</span></button></div><button type="button" class="btn g" data-close>Close</button></div></div>`;
  const close=makeClose(m,opener);modal.close=close;m.querySelector('[data-close]').onclick=close;$('#sc').onclick=e=>{if(e.target.id==='sc'||(e.target.closest('[data-act]')&&!e.target.closest('[data-act=theme]')))close()};focusIn(m)}
-export {currencyModal,fundModal,payEntryModal,recvModal,taxPayModal,debtModal,debtPayModal,billModal,payModal,accountSheet,modal,fld,amt,catSel,txForm,txSave,openTx,picker,catModal,goalModal};
+export {baseModal,currencyModal,fundModal,payEntryModal,recvModal,taxPayModal,debtModal,debtPayModal,billModal,payModal,accountSheet,modal,fld,amt,catSel,txForm,txSave,openTx,picker,catModal,goalModal};

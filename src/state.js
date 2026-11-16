@@ -16,7 +16,15 @@ function norm(old){const t=Object.assign({},old||S.tax||{});
  if(t.link===undefined){if(S.income>0){if(!(t.gross>0))t.gross=S.income;t.link=false}else t.link=true}
  // Bills used to be categories with a due day. Move them into their own list once.
  if(!Array.isArray(S.bills)){const nk=`${now.getFullYear()}-${pad(now.getMonth()+1)}`;S.bills=(S.cats||[]).filter(c=>c.due>0&&c.budget>0).map(c=>({id:'b'+c.id,name:c.name,amount:c.budget,rep:'monthly',due:c.due,catId:c.id,from:(S.tx||[]).filter(t=>t.catId===c.id).map(t=>t.date.slice(0,7)).sort()[0]||nk,lg:1}));(S.cats||[]).forEach(c=>{c.due=0})}
- S.tax=Object.assign({mode:'employee',track:false,fopt:'8',link:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},t);S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.bills=S.bills||[];S.debts=S.debts||[];S.pay=S.pay||[];S.currency=S.currency||'PHP';setCurrency(S.currency);S.alerts=Object.assign({on:true,warn:80},S.alerts||{});S.debtPlan=Object.assign({extra:0,method:'avalanche'},S.debtPlan||{});S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0;syncGoals()}
+ S.tax=Object.assign({mode:'employee',track:false,fopt:'8',link:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},t);
+ // What the budget starts from: 'amount' (money you start with, as a running balance or repeated monthly) or 'salary' (take-home pay each month).
+ // Older data: salary if it was following take-home pay, otherwise a fixed monthly amount; brand new accounts start with a starting amount.
+ if(S.base!=='amount'&&S.base!=='salary'){const fresh=!S.income&&!(S.tx&&S.tx.length)&&!(S.pay&&S.pay.length);
+  if(fresh){S.base='amount';S.start={amount:0,repeat:false,date:T}}
+  else if(S.tax.link&&S.tax.gross>0)S.base='salary';
+  else{S.base='amount';S.start={amount:S.income||0,repeat:true,date:T}}}
+ S.start=Object.assign({amount:0,repeat:false,date:T},S.start||{});S.tax.link=S.base==='salary';
+ S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.bills=S.bills||[];S.debts=S.debts||[];S.pay=S.pay||[];S.currency=S.currency||'PHP';setCurrency(S.currency);S.alerts=Object.assign({on:true,warn:80},S.alerts||{});S.debtPlan=Object.assign({extra:0,method:'avalanche'},S.debtPlan||{});S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0;syncGoals()}
 // Saved so far = what was already saved before tracking (base) plus every contribution logged for the goal.
 function syncGoals(){S.goals.forEach(g=>{if(g.base===undefined)g.base=g.saved||0;g.saved=Math.max(0,g.base+S.tx.reduce((a,t)=>a+(t.goalId===g.id&&t.type==='expense'?t.amount:0),0))})}
 norm();
@@ -36,20 +44,38 @@ const budgetOf=(c,y=cur.y,m=cur.m)=>{const v=c.mb&&c.mb[mk(y,m)];return v===unde
 const cat=id=>S.cats.find(c=>c.id===id)||{name:'Uncategorized',hue:220,icon:'tag',budget:0,due:0};
 // Logged pay that has actually been received in a month.
 const paySum=(y,m)=>{const k=mk(y,m);return S.pay.reduce((a,p)=>a+(p.paid&&p.date.startsWith(k)?p.net:0),0)};
-// Base income of a month: the fixed monthly amount, or what you logged as received when tracking pay.
-const baseIncome=(y=cur.y,m=cur.m)=>S.tax.track?paySum(y,m):S.income;
-// A steady figure for ratios: the fixed amount, or the average of the last 3 months with logged pay.
-function incomeRef(){if(!S.tax.track)return S.income;let t=0,n=0;for(let i=0;i<3;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1),v=paySum(d.getFullYear(),d.getMonth());if(v>0){t+=v;n++}}return n?t/n:0}
-function monthSum(y,m){const k=mk(y,m);let e=0,i=0;S.tx.forEach(t=>{if(t.date.startsWith(k))t.type==='income'?i+=t.amount:e+=t.amount});return{e,i:i+baseIncome(y,m)}}
+// ----- Starting amount as a running balance -----
+// True when the budget starts from "the money I have", carried forward from month to month.
+const isBalance=()=>S.base==='amount'&&!S.start.repeat;
+const monthIdx=d=>+d.slice(0,4)*12+ +d.slice(5,7)-1;
+// The money you have at the start of a month: the starting amount, plus everything received and minus everything spent since.
+function opening(y,m){
+ const sm=monthIdx(S.start.date||T),mi=y*12+m;
+ if(mi<sm)return 0;
+ let bal=S.start.amount||0;
+ if(mi===sm)return bal;
+ S.tx.forEach(t=>{const i=monthIdx(t.date);if(i>=sm&&i<mi)bal+=t.type==='income'?t.amount:-t.amount});
+ S.pay.forEach(p=>{if(p.paid){const i=monthIdx(p.date);if(i>=sm&&i<mi)bal+=p.net}});
+ return Math.round(bal*100)/100}
+// Money received in a month (income entries and logged pay).
+const inflow=(y,m)=>{const k=mk(y,m);let v=0;S.tx.forEach(t=>{if(t.type==='income'&&t.date.startsWith(k))v+=t.amount});return v+paySum(y,m)};
+// Base of a month: the balance carried in, the fixed monthly amount, take-home pay, or what you logged as received when tracking pay.
+const baseIncome=(y=cur.y,m=cur.m)=>isBalance()?opening(y,m):(S.tax.track?paySum(y,m):S.income);
+// Word for the base figure on screen.
+const incWord=()=>isBalance()?'Available':'Income';
+// A steady figure for ratios: the fixed amount, or the average of the last 3 months of money received.
+function incomeRef(){if(!S.tax.track&&!isBalance())return S.income;let t=0,n=0;for(let i=0;i<3;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1),v=isBalance()?inflow(d.getFullYear(),d.getMonth()):paySum(d.getFullYear(),d.getMonth());if(v>0){t+=v;n++}}return n?t/n:0}
+function monthSum(y,m){const k=mk(y,m);let e=0,i=0;S.tx.forEach(t=>{if(t.date.startsWith(k))t.type==='income'?i+=t.amount:e+=t.amount});return{e,i:i+baseIncome(y,m)+(isBalance()?paySum(y,m):0)}}
 function calc(){const k=mk(),tx=S.tx.filter(t=>t.date.startsWith(k)),by={};let extra=0,spent=0;
  tx.forEach(t=>{if(t.type==='income')extra+=t.amount;else{spent+=t.amount;by[t.catId]=(by[t.catId]||0)+t.amount}});
- const income=baseIncome()+extra,left=income-spent,dm=dim(),day=isCur()?now.getDate():(isPast()?dm:0);
+ const open=isBalance()?opening(cur.y,cur.m):0,inflowM=extra+(isBalance()?paySum(cur.y,cur.m):0);
+ const income=baseIncome()+inflowM,left=income-spent,dm=dim(),day=isCur()?now.getDate():(isPast()?dm:0);
  const bc=new Set(S.bills.map(b=>b.catId)),unpaid=isCur()?dueLeft():0;
  const gs=tx.filter(t=>t.goalId&&t.type==='expense'),saved=gs.reduce((a,t)=>a+t.amount,0),savedVar=gs.filter(t=>!bc.has(t.catId)).reduce((a,t)=>a+t.amount,0);
  const variable=S.cats.filter(c=>!bc.has(c.id)).reduce((a,c)=>a+(by[c.id]||0),0)-savedVar;
  const proj=isCur()?spent+(day?variable/day*(dm-day):0)+unpaid:spent;
  const daysLeft=isCur()?dm-day+1:0,free=isCur()&&daysLeft?Math.max(0,left-unpaid)/daysLeft:0;
- return{tx,by,spent,saved,income,left,unpaid,proj,free,budget:S.cats.reduce((a,c)=>a+budgetOf(c),0),day,dm}}
+ return{tx,by,spent,saved,income,left,open,inflow:inflowM,unpaid,proj,free,budget:S.cats.reduce((a,c)=>a+budgetOf(c),0),day,dm}}
 // Rows shown in the transaction list at a time: fewer on phones.
 const PAGE=()=>innerWidth<861?12:30;
-export {clean,PAGE,KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,GROUPS,grpOf,budgetOf};
+export {clean,PAGE,KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,isBalance,opening,inflow,incWord,GROUPS,grpOf,budgetOf};

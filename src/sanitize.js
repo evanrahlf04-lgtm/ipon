@@ -66,6 +66,9 @@ export function clean(d){
  if(Array.isArray(d.pay))out.pay=list(d.pay,LIMIT.other).map(pay).filter(Boolean);
  const t=tax(d.tax);if(t)out.tax=t;
  if(typeof d.currency==='string'&&/^[A-Z]{3}$/.test(d.currency))out.currency=d.currency;
+ // What the budget starts from. Left unset when absent so older data can be migrated.
+ if(d.base==='amount'||d.base==='salary')out.base=d.base;
+ if(isObj(d.start)){out.start={};put(out.start,'amount',num(d.start.amount,0,MAXN,undefined));if(typeof d.start.repeat==='boolean')out.start.repeat=d.start.repeat;const sd=day(d.start.date);if(sd)out.start.date=sd}
  if(isObj(d.fxPHP)){const r=num(d.fxPHP.rate,0,1e7,undefined);if(r>0)out.fxPHP={rate:r,updated:num(d.fxPHP.updated,0,9e15,0),time:num(d.fxPHP.time,0,9e15,0)}}
  if(isObj(d.alerts)){out.alerts={};if(typeof d.alerts.on==='boolean')out.alerts.on=d.alerts.on;put(out.alerts,'warn',int(d.alerts.warn,50,100,undefined))}
  if(isObj(d.debtPlan)){out.debtPlan={};put(out.debtPlan,'extra',num(d.debtPlan.extra,0,MAXN,undefined));if(['avalanche','snowball'].includes(d.debtPlan.method))out.debtPlan.method=d.debtPlan.method}

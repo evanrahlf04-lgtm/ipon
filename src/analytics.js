@@ -1,6 +1,6 @@
 // Money plan: matches income against bills, debt payments, everyday spending and goals,
 // for the month on screen and the next three months. Everything here is an estimate from your own data.
-import {S,now,cur,mk,calc,incomeRef,grpOf,cat,budgetOf} from './state.js';
+import {S,now,cur,mk,calc,incomeRef,grpOf,cat,budgetOf,isBalance} from './state.js';
 import {monthOcc,overdue} from './bills.js';
 import {withBal,simulate} from './debts.js';
 import {peso,MF} from './util.js';
@@ -49,7 +49,7 @@ function catRows(s){
 
 // The next three months: expected income against known bills, usual everyday spending and goals.
 function forecast(){
- const{avg,n}=avgBy(),bc=new Set(S.bills.map(b=>b.catId)),goals=sum(unbilled(),goalNeed),inc=S.tax.track?incomeRef():S.income;
+ const{avg,n}=avgBy(),bc=new Set(S.bills.map(b=>b.catId)),goals=sum(unbilled(),goalNeed),inc=(S.tax.track||isBalance())?incomeRef():S.income;
  const usualFor=(y,m)=>sum(S.cats.filter(c=>!bc.has(c.id)),c=>n?(avg[c.id]||0):budgetOf(c,y,m));
  const rows=[];let run=0;
  for(let i=1;i<=3;i++){const[y,m]=ym(idx(now.getFullYear(),now.getMonth())+i),occ=monthOcc(y,m),oblig=sum(occ,o=>o.amt),usual=usualFor(y,m);

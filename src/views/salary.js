@@ -1,5 +1,5 @@
 import {esc,peso,MN,MF,ic,php,curCode} from '../util.js';
-import {now,cur,S,mk,paySum} from '../state.js';
+import {now,cur,S,mk,paySum,isBalance} from '../state.js';
 import {tone,topbar,monHtml,fold} from '../ui.js';
 import {tax,takeHome,pd} from './tax.js';
 import {liveRate,liveInfo,liveStale,refreshLive,when,ATTR} from '../fx.js';
@@ -46,8 +46,8 @@ function tracker(){
  const src={};yearOf(y).forEach(p=>{const k=p.src||(KINDS[p.kind]||KINDS.other)[0];src[k]=(src[k]||0)+p.net});
  const srcs=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,6),hasFree=S.pay.some(p=>p.kind==='freelance')||S.tax.mode==='freelance';
  return `<section class="panel fade" data-sec="Summary"><div class="tiles" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"><div class="tile t-lime"><small>Received in ${MF[cur.m]}</small><div><b class="serif">${peso(recv)}</b><em>${emp&&salaryIn?`salary ${peso(salaryIn)} of about ${peso(emp)} expected`:'logged as received'}</em></div></div><div class="tile t-mint"><small>Waiting to be paid</small><div><b class="serif">${peso(waitSum)}</b><em>${wait.length?wait.length+' invoice'+(wait.length>1?'s':''):'nothing outstanding'}</em></div></div><div class="tile t-pink"><small>Received in ${y}</small><div><b class="serif">${peso(ytd)}</b><em>${mons.length?'about '+peso(ytd/mons.length)+' a month':'nothing logged yet'}</em></div></div></div>
- <div class="checks" style="margin-top:14px"><label class="chk"><input type="checkbox" id="ttrack" ${S.tax.track?'checked':''}>Use the pay I log as my monthly income</label></div>
- <p class="note" style="margin-top:8px">${S.tax.track?'Your Overview, budgets and report use what you logged as received each month. A month with nothing logged shows zero income.':'Off: your income is the fixed amount you set. Turn this on if your pay changes from month to month, such as freelance work.'}</p></section>
+ ${isBalance()?'<p class="note" style="margin-top:14px">Pay you log here is added to your balance, which started from your starting amount. Change that from the account menu.</p></section>':`<div class="checks" style="margin-top:14px"><label class="chk"><input type="checkbox" id="ttrack" ${S.tax.track?'checked':''}>Use the pay I log as my monthly income</label></div>
+ <p class="note" style="margin-top:8px">${S.tax.track?'Your Overview, budgets and report use what you logged as received each month. A month with nothing logged shows zero income.':'Off: your income is the fixed amount you set. Turn this on if your pay changes from month to month, such as freelance work.'}</p></section>`}
  <section class="panel fade" data-sec="${MF[cur.m]}"><div class="sec"><h2>Pay log · ${MF[cur.m]}</h2><button class="btn sm" data-act="addpay">${ic('plus','sm')}Log pay</button></div>${list.length?list.map(row).join(''):`<div class="empty">${ic('wallet','lg')}Nothing logged for ${MF[cur.m]}. Log each payday or client payment to see what you really earn.<button class="btn" data-act="addpay">${ic('plus','sm')}Log pay</button></div>`}</section>
  ${wait.length?`<section class="panel fade" data-sec="Waiting"><div class="sec"><h2>Waiting to be paid</h2><span class="mute">${peso(waitSum)}</span></div>${wait.map(row).join('')}</section>`:''}
  ${otherCur()}
