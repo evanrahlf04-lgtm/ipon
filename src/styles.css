@@ -701,3 +701,86 @@ small{font-size:12px}
 /* phone bottom bar: six labels share the width, so they sit at the smallest legible size */
 @media(max-width:860px){.app .side .nav .lbl{font-size:11px}}
 @media(max-width:860px){.side{padding:6px 4px;gap:0}}
+
+/* =====================================================================
+   Cards that adapt to their own width.
+   Spatial thesis: every card is a container. Figures scale to the card they sit in, headers wrap
+   instead of squeezing the name, and rows stack on narrow screens instead of crushing their subtitle.
+   ===================================================================== */
+.tile,.stat,.tsum>div,.opt,.bc,.bsum .bs>*{container-type:inline-size}
+
+/* money figures: as large as the card allows, never wider than it (about 6.4em for ₱00,000.00) */
+.tile b,.stat b,.tsum b,.opt b.n{font-size:clamp(20px,calc((100cqi - 40px)/6.8),28px);line-height:1.15;overflow-wrap:anywhere}
+.bsum b{font-size:clamp(16px,calc((100cqi - 4px)/6.8),28px);line-height:1.15}
+.tsum b{font-size:clamp(16px,calc((100cqi - 32px)/6.8),20px)}
+
+/* stat tiles and stat rows: as many as fit, never a fixed three */
+.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,184px),1fr));gap:12px}
+.stats{grid-template-columns:repeat(auto-fit,minmax(min(100%,184px),1fr))}
+.tsum{grid-template-columns:repeat(auto-fit,minmax(min(100%,152px),1fr))}.tsum>div:last-child{grid-column:auto}
+.bsum .bs{grid-template-columns:repeat(auto-fit,minmax(min(100%,136px),1fr));row-gap:16px}
+.bsum small{white-space:normal}
+
+/* tile text may wrap rather than run out of the card */
+.tile small,.tile em,.stat small,.tsum small,.tsum em{overflow-wrap:anywhere}
+
+/* card headers (budget, debt and goal cards): icon and name first, the control wraps below on narrow cards */
+.bc .h{flex-wrap:wrap;row-gap:12px}
+.bc .h .n{flex:1 1 140px}
+@container (max-width: 340px){
+ .bc .h>.btn,.bc .h>input{flex:1 1 100%;width:auto}
+ .bc .h>.btn{order:3}
+}
+.bc .h b,.bc .h .s{overflow-wrap:anywhere;white-space:normal}
+
+/* alert banner: no colored side stripe; the red icon already says what it is */
+.alertbar{box-shadow:none;border:1px solid var(--bad-soft)}
+
+/* transaction rows: room for a full category name */
+.th,.tr{grid-template-columns:48px minmax(0,1.5fr) minmax(140px,1fr) minmax(0,.9fr) 112px 40px}
+.tr .cp{max-width:100%}
+
+/* phones: rows and tiles stack so nothing is squeezed */
+@media(max-width:700px){
+ .tile{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;min-height:0;padding:16px 20px}
+ .tile b{text-align:left}
+ .pb{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:"i n n" "i a p";column-gap:14px;row-gap:8px;align-items:center;padding:16px 4px}
+ .pb>.tone{grid-area:i;align-self:start}
+ .pb .n{grid-area:n}
+ .pb .am{grid-area:a;text-align:left;justify-self:start}
+ .pb .pa2{grid-area:p;grid-column:auto;justify-content:flex-end;flex-wrap:wrap}
+ .pb .go{display:none}
+}
+
+/* rows decide their own layout from their own width: amount and actions share a line only when there is room */
+.pb{container-type:inline-size}
+@media(max-width:700px){
+ .pb{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:none;row-gap:8px}
+ .pb>.tone{grid-area:auto;grid-column:1;grid-row:1/span 2;align-self:start}
+ .pb .n{grid-area:auto;grid-column:2/-1;grid-row:1}
+ .pb .am{grid-area:auto;grid-column:2;grid-row:2;justify-self:start;text-align:left}
+ .pb .pa2{grid-area:auto;grid-column:3;grid-row:2;justify-content:flex-end}
+}
+@container (max-width: 330px){
+ .pb>.tone{grid-row:1/span 3}
+ .pb .pa2{grid-column:2/-1;grid-row:3;justify-content:flex-start}
+}
+/* names wrap instead of being cut off */
+@media(max-width:700px){.pb .n b,.tr .m b{white-space:normal;overflow-wrap:anywhere}}
+
+/* label and figure rows (Money plan, Report): the name may wrap, the figure drops below when there is no room */
+.hr .t{flex-wrap:wrap;gap:2px 12px}
+.hr .t span:first-child{white-space:normal;overflow:visible;text-overflow:clip;flex:1 1 112px;min-width:0}
+.hr .t span:last-child{flex:0 0 auto}
+
+/* label and amount rows: the label wraps, the amount never moves out of the row */
+.pr>*{min-width:0}
+.pr>span:first-child{overflow-wrap:anywhere}
+.pr>b{flex:none;white-space:nowrap}
+
+/* the budget box says what it is: a labelled pill that takes the full row on narrow cards */
+.bc .h>.bud{display:flex;align-items:center;justify-content:space-between;gap:12px;height:44px;padding:0 6px 0 16px;border-radius:99px;background:var(--soft);color:var(--mute);font-size:14px;cursor:text}
+.bc .h>.bud:focus-within{outline:2px solid var(--ink)}
+.bc .h>.bud input{width:120px;height:36px;padding:0 12px;border:0;background:none;color:var(--ink);text-align:right}
+.bc .h>.bud input:focus{outline:none}
+@container (max-width: 340px){.bc .h>.bud{flex:1 1 100%;order:3}}
