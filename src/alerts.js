@@ -3,7 +3,7 @@
 import {S,now,mk,grpOf,budgetOf} from './state.js';
 import {peso} from './util.js';
 
-const P=v=>peso(Math.round(v));
+const P=v=>peso(v);
 function spentBy(y,m){const k=mk(y,m),by={};S.tx.forEach(t=>{if(t.type==='expense'&&t.date.startsWith(k))by[t.catId]=(by[t.catId]||0)+t.amount});return by}
 
 function budgetAlerts(y,m){

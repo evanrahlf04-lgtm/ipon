@@ -48,6 +48,7 @@ function tax(t){
  const o={};
  if(t.mode==='employee'||t.mode==='freelance')o.mode=t.mode;
  if(typeof t.link==='boolean')o.link=t.link;
+ if(typeof t.cur==='string'&&/^[A-Z]{3}$/.test(t.cur))o.cur=t.cur;
  if(typeof t.track==='boolean')o.track=t.track;
  if(typeof t.th==='boolean')o.th=t.th;
  if(['8','osd','full'].includes(t.fopt))o.fopt=t.fopt;

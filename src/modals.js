@@ -1,4 +1,4 @@
-import {$,esc,HUES,ICONS,ic,uid,peso,sym,CURRENCIES,curCode,setCurrency} from './util.js';
+import {$,esc,HUES,ICONS,ic,uid,peso,sym,CURRENCIES,curCode,setCurrency,MF,pad} from './util.js';
 import {T,S,user,setCur,save,cat,now,GROUPS,grpOf} from './state.js';
 import {mkey,dateTxt,occ,overdue,monthOcc} from './bills.js';
 import {balance,linkBill,settleDebt,debtCat} from './debts.js';
@@ -6,7 +6,7 @@ import {TYPES} from './views/debts.js';
 import {KINDS,taxCat} from './pay.js';
 import {contribs,saveCat,linkGoalBill,settleGoal} from './goals.js';
 import {crossMsg,spentBy} from './alerts.js';
-import {rate,cached,rateText,convertAll,refreshPHP,ATTR} from './fx.js';
+import {rate,cached,rateText,convertAll,refreshPHP,phpRate,ATTR} from './fx.js';
 import {syncIncome} from './views/tax.js';
 import {takeHome} from './views/tax.js';
 import {toast} from './ui.js';
@@ -25,7 +25,7 @@ function modal(title,body,fn,del){const opener=document.activeElement;lock(true)
 const fld=(l,n,t='text',x='',c='')=>`<label class="fld ${c}">${l}<input name="${n}" type="${t}" ${x}></label>`;
 const amt=(v='')=>fld('Amount ('+sym()+')','a','number',`inputmode="decimal" step="0.01" min="0.01" value="${v}" required placeholder="0"`,'big');
 const catSel=(sel)=>`<label class="fld">Category<select name="c">${S.cats.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`;
-function txForm(t,fx){const ty=t.type;return `<div class="seg" id="seg" style="align-self:flex-start"><button type="button" data-ty="expense" class="${ty==='expense'?'on':''}">Expense</button><button type="button" data-ty="income" class="${ty==='income'?'on':''}">Income</button></div>${amt(t.amount||'')}${fx?fxBlock():t.fx?`<p class="note">Entered as ${esc(t.fx.c)} ${Number(t.fx.a).toLocaleString('en-US')}, converted at the rate on that day.</p>`:''}<div id="cw" ${ty==='income'?'hidden':''}>${catSel(t.catId)}</div>${fld('Date','d','date',`value="${t.date}" required`)}${fld('Note','n','text',`maxlength="60" value="${esc(t.note||'')}" placeholder="Optional"`)}`}
+function txForm(t,fx){const ty=t.type;return `<div class="seg" id="seg" style="align-self:flex-start"><button type="button" data-ty="expense" class="${ty==='expense'?'on':''}">Expense</button><button type="button" data-ty="income" class="${ty==='income'?'on':''}">Income</button></div>${fx?amtRow(t.amount||''):amt(t.amount||'')}${!fx&&t.fx?`<p class="note">Entered as ${esc(t.fx.c)} ${Number(t.fx.a).toLocaleString('en-US')}, converted at the rate on that day.</p>`:''}<div id="cw" ${ty==='income'?'hidden':''}>${catSel(t.catId)}</div>${fld('Date','d','date',`value="${t.date}" required`)}${fld('Note','n','text',`maxlength="60" value="${esc(t.note||'')}" placeholder="Optional"`)}`}
 function txSave(f,t){const a=parseFloat(f.get('a'));if(!(a>0))return false;const ty=document.querySelector('#seg .on').dataset.ty;Object.assign(t,{date:f.get('d'),type:ty,catId:ty==='expense'?f.get('c'):null,amount:a,note:(f.get('n')||'').trim()});const d=new Date(t.date+'T00:00');setCur({y:d.getFullYear(),m:d.getMonth()})}
 function openTx(t,isNew){modal(isNew?'Add transaction':'Edit transaction',txForm(t,isNew),f=>{const x=isNew?fxApply(f):{};if(x===null)return false;const cid=f.get('c'),a0=parseFloat(f.get('a')),dd=new Date(f.get('d')+'T00:00'),exp=isNew&&document.querySelector('#seg .on').dataset.ty==='expense',before=exp?(spentBy(dd.getFullYear(),dd.getMonth())[cid]||0):0;if(txSave(f,t)===false)return false;if(x.fx)t.fx=x.fx;if(isNew)S.tx.push(t);toast((exp&&crossMsg(cid,before,before+a0,dd.getFullYear(),dd.getMonth()))||(isNew?'Added':'Updated'))},isNew?null:()=>{const i=S.tx.indexOf(t);S.tx.splice(i,1);toast('Transaction deleted',()=>{S.tx.splice(i,0,t);save();render()})});if(isNew)fxWire()}
 const picker=(h,i)=>`<div class="fld">Icon<div class="picks" data-pk="icon">${ICONS.map(n=>`<button type="button" data-ic="${n}" class="${n===i?'on':''}" aria-label="${n}">${ic(n)}</button>`).join('')}</div><input type="hidden" name="icon" value="${i}"></div><div class="fld">Colour<div class="picks hues" data-pk="hue">${HUES.map(x=>`<button type="button" data-hue="${x}" style="--h:${x}" class="${x===h?'on':''}" aria-label="colour ${x}"></button>`).join('')}</div><input type="hidden" name="hue" value="${h}"></div>`;
@@ -36,13 +36,19 @@ function fundModal(g){
  modal('Add to '+g.name,amt()+fld('Date','d','date',`value="${T}" required`)+fld('Note','n','text','maxlength="60" placeholder="Optional"')+`<p class="note">Saved so far ${peso(g.saved)} of ${peso(g.target)}. This counts as money you set aside, so it lowers what is left to spend this month.</p>`,
   f=>{const a=parseFloat(f.get('a'));if(!(a>0))return false;S.tx.push({id:uid(),date:f.get('d')||T,type:'expense',catId:saveCat(),goalId:g.id,amount:a,note:(f.get('n')||'').trim()||'Saved for '+g.name});toast(settleGoal(g.id)?g.name+' is fully funded':'Added to '+g.name)})}
 // Add or edit a bill. Monthly bills repeat on a due day (1-31, short months use their last day).
+// Month choice as a dropdown (instead of the browser's dashed month field). 'none' is the label for an empty choice.
+function monthSel(name,val,none){
+ const base=new Date(now.getFullYear(),now.getMonth()-12,1),list=[];
+ for(let i=0;i<=96;i++){const d=new Date(base.getFullYear(),base.getMonth()+i,1);list.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}`)}
+ if(val&&!list.includes(val)){list.push(val);list.sort()}
+ return `<select name="${name}"><option value="">${none}</option>${list.map(v=>`<option value="${v}" ${v===val?'selected':''}>${MF[+v.slice(5)-1]} ${v.slice(0,4)}</option>`).join('')}</select>`}
 function billModal(b,isNew){
  const once=b.rep==='once',dayNow=now.getDate();
  const defFrom=d=>d>=dayNow?mkey(now.getFullYear(),now.getMonth()):mkey(now.getFullYear(),now.getMonth()+1);
  const cats=(isNew?'<option value="__new" selected>+ New category from this name</option>':'')+S.cats.map(c=>`<option value="${c.id}" ${!isNew&&c.id===b.catId?'selected':''}>${esc(c.name)}</option>`).join('');
  modal(isNew?'New bill':'Edit bill',fld('Name','n','text',`maxlength="30" required value="${esc(b.name)}" placeholder="e.g. Rent, Meralco, Loan"`)+amt(b.amount||'')+
   `<label class="fld">Repeats<select name="rep" id="brep"><option value="monthly" ${once?'':'selected'}>Every month</option><option value="once" ${once?'selected':''}>One time</option></select></label>
-  <div id="bmo" ${once?'hidden':''}>${fld('Due day of the month (1 to 31)','due','number',`min="1" max="31" step="1" inputmode="numeric" value="${b.due||''}" placeholder="e.g. 5"`)}${fld('First due month','from','month',`value="${b.from||''}"`)}${fld('Last month (leave empty if it never ends)','end','month',`value="${b.end||''}"`)}</div>
+  <div id="bmo" ${once?'hidden':''}>${fld('Due day of the month (1 to 31)','due','number',`min="1" max="31" step="1" inputmode="numeric" value="${b.due||''}" placeholder="e.g. 5"`)}<label class="fld">First due month${monthSel('from',b.from,'Next due date')}</label><label class="fld">Last month${monthSel('end',b.end,'Never ends')}</label></div>
   <div id="bon" ${once?'':'hidden'}>${fld('Due date','dt','date',`value="${b.date||''}"`)}</div>
   <label class="fld">Category<select name="c">${cats}</select></label>
   <p class="note">The category groups this bill with your other spending. You can pay a bill in parts from the Payables page.</p>`,
@@ -87,7 +93,7 @@ function debtPayModal(d){
 // Log money received, or an invoice you are still waiting on.
 function payEntryModal(p,isNew){
  const kinds=Object.entries(KINDS).map(([k,v])=>`<option value="${k}" ${p.kind===k?'selected':''}>${v[0]}</option>`).join('');
- modal(isNew?'Log pay':'Edit pay',`<label class="fld">Type<select name="k">${kinds}</select></label>`+fld('From (employer or client)','src','text',`maxlength="40" value="${esc(p.src||'')}" placeholder="e.g. Acme Corp, Juan Dela Cruz"`)+amt(p.net||'')+(isNew?fxBlock():p.fx?`<p class="note">Entered as ${esc(p.fx.c)} ${Number(p.fx.a).toLocaleString('en-US')}, converted at the rate on that day.</p>`:'')+
+ modal(isNew?'Log pay':'Edit pay',`<label class="fld">Type<select name="k">${kinds}</select></label>`+fld('From (employer or client)','src','text',`maxlength="40" value="${esc(p.src||'')}" placeholder="e.g. Acme Corp, Juan Dela Cruz"`)+(isNew?amtRow(p.net||''):amt(p.net||''))+(!isNew&&p.fx?`<p class="note">Entered as ${esc(p.fx.c)} ${Number(p.fx.a).toLocaleString('en-US')}, converted at the rate on that day.</p>`:'')+
   fld('Gross before deductions (optional)','gross','number',`inputmode="decimal" step="0.01" min="0" value="${p.gross||''}"`)+
   `<label class="fld">Status<select name="st" id="pst"><option value="in" ${p.paid?'selected':''}>Received</option><option value="out" ${p.paid?'':'selected'}>Invoiced, waiting for payment</option></select></label>`+
   fld('Date','d','date',`value="${p.date}" required`)+`<div id="pdue" ${p.paid?'hidden':''}>${fld('Expected payment date','due','date',`value="${p.due||''}"`)}</div>`+
@@ -107,7 +113,9 @@ function taxPayModal(){
 // Choose the display currency. Changes the symbol and number format only; amounts are not converted.
 // Entering an amount in another currency: pick it, see the converted amount, and it is saved in the budget currency.
 const curOpts=sel=>CURRENCIES.map(([c,n])=>`<option value="${c}" ${c===sel?'selected':''}>${c} · ${esc(n)}</option>`).join('');
-const fxBlock=()=>`<label class="fld">Currency of this amount<select name="fxc">${curOpts(curCode())}</select></label><p class="note" id="fxn" hidden></p>`;
+// Amount with a compact currency picker beside it, and a line below for the converted figure.
+const fxSel=()=>`<label class="fld cur">Currency<select name="fxc">${CURRENCIES.map(([c])=>`<option value="${c}" ${c===curCode()?'selected':''}>${c}</option>`).join('')}</select></label>`;
+const amtRow=v=>`<div class="amtrow">${amt(v)}${fxSel()}</div><p class="note" id="fxn" hidden></p>`;
 function fxWire(){const sh=$('#sh');if(!sh)return;const sel=sh.querySelector('[name=fxc]'),inp=sh.querySelector('[name=a]'),note=sh.querySelector('#fxn');if(!sel||!inp||!note)return;
  const upd=async()=>{const c=sel.value,to=curCode();if(c===to){note.hidden=true;return}note.hidden=false;if(!cached(c,to))note.textContent="Getting today's rate…";
   try{const r=await rate(c,to);if(sel.value!==c)return;const a=parseFloat(inp.value);note.innerHTML=(a>0?`${esc(c)} ${a.toLocaleString('en-US')} = <b>${peso(Math.round(a*r.rate*100)/100)}</b>. `:'')+esc(rateText(c,to,r))+'. '+ATTR}
@@ -125,8 +133,10 @@ function currencyModal(){
   <p class="note" id="fxn">Pick a currency to see today's rate.</p>
   <p class="note">Converting changes every amount you have saved, all at one rate. Untick it to change only the symbol. The Salary calculator and freelancer tax stay in pesos, and your take-home pay is converted for your budget.</p>`,
   f=>{const c=f.get('cur');if(c===from)return;let msg='Currency set to '+c;
+   // Older salary figures were kept in pesos: move them into the current currency first so they convert correctly.
+   if(S.tax.cur===undefined&&from!=='PHP'){const pr=phpRate();if(pr)['gross','dm','abs','ob'].forEach(k=>{S.tax[k]=Math.round((S.tax[k]||0)*pr*100)/100})}
    if(f.get('conv')){const r=cached(from,c);if(!r){toast("Getting today's rate. Try again in a moment.");rate(from,c).catch(()=>{});return false}convertAll(r);msg=`Converted everything to ${c}`}
-   S.currency=c;setCurrency(c);delete S.fxPHP;
+   S.currency=c;setCurrency(c);S.tax.cur=c;delete S.fxPHP;
    if(c==='PHP')syncIncome();else refreshPHP(()=>{syncIncome();save();render()});
    toast(msg)});
  const sh=$('#sh'),sel=sh&&sh.querySelector('[name=cur]'),note=sh&&sh.querySelector('#fxn');if(!sel)return;

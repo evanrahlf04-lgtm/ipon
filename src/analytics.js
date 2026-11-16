@@ -12,7 +12,7 @@ const sum=(l,f)=>l.reduce((a,x)=>a+f(x),0);
 function goalNeed(g){
  if(g.saved>=g.target||!g.date)return 0;
  const days=(new Date(g.date+'T00:00')-now)/864e5,months=Math.max(1,Math.ceil(days/30.44));
- return Math.ceil((g.target-g.saved)/months)}
+ return Math.ceil((g.target-g.saved)/months*100)/100}
 
 // Goals that do not already save through a monthly bill.
 const unbilled=()=>S.goals.filter(g=>!S.bills.some(b=>b.goalId===g.id));
@@ -57,7 +57,7 @@ function forecast(){
  return{rows,hist:n}}
 
 function insights(p,f){
- const out=[],P=v=>peso(Math.round(v)),od=overdue(),ds=withBal(S.debts).filter(d=>d.cur>.005);
+ const out=[],P=v=>peso(v),od=overdue(),ds=withBal(S.debts).filter(d=>d.cur>.005);
  if(od.length)out.push({cls:'late',i:'alert',t:`${od.length} bill${od.length>1?'s are':' is'} overdue, ${P(sum(od,o=>o.rem))} in total. Pay or skip them on the Payables page.`});
  if(p.income>0&&p.left<0)out.push({cls:'late',i:'alert',t:`This month's plan is ${P(-p.left)} more than your income. Trim everyday budgets or move a goal date out.`});
  const bad=f.rows.find(r=>r.net<0);

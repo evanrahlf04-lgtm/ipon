@@ -646,3 +646,19 @@ body::before{display:none}
 /* brand colours are identical in light and dark */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--lime:#d4f58b;--accent:#d4f58b}}
 :root[data-theme="dark"]{--lime:#d4f58b;--accent:#d4f58b}
+
+/* amount field and currency picker */
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fld.big input:focus{outline:2px solid color-mix(in srgb,var(--ink) 55%,transparent);background:var(--surface)}
+.amtrow{display:flex;gap:10px;align-items:stretch}
+.amtrow>.fld{min-width:0}.amtrow>.fld.big{flex:1}
+.amtrow>.fld.cur{width:112px;flex:none}
+.amtrow>.fld.cur select{flex:1;height:auto;padding:0 34px 0 16px;font-weight:600}
+.sheet .note[hidden]{display:none}
+/* the arrow on dropdowns (a background shorthand earlier in this file had removed it) */
+.fld select,.pill select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f6764' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.pill select{background-image:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa39f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E")}}
+:root[data-theme="dark"] .fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa39f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E")}
+#bmo,#bon,#pdue,#cw{display:flex;flex-direction:column;gap:16px}

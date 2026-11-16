@@ -11,7 +11,7 @@ function pace(g){
  const end=new Date(g.date+'T00:00'),days=(end-new Date())/864e5,tag=`${end.getDate()} ${MN[end.getMonth()]} ${end.getFullYear()}`;
  if(days<0)return {t:`Target date passed (${tag})`,cls:'late'};
  const months=Math.max(1,Math.ceil(days/30.44));
- return {t:`${peso(Math.ceil((g.target-g.saved)/months))} a month to finish by ${tag}`,cls:''};
+ return {t:`${peso(Math.ceil((g.target-g.saved)/months*100)/100)} a month to finish by ${tag}`,cls:''};
 }
 // Recent contributions for a goal. Tap one to edit or delete it.
 function hist(g){const h=contribs(g);if(!h.length)return '';const d=t=>{const x=new Date(t.date+'T00:00');return `${x.getDate()} ${MN[x.getMonth()]} ${x.getFullYear()}`};

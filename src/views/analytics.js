@@ -4,7 +4,7 @@ import {tone,topbar,monHtml,fold} from '../ui.js';
 import {report} from './report.js';
 import {monthPlan,split,catRows,forecast,insights} from '../analytics.js';
 
-const R=v=>peso(Math.round(v)),pc=(v,t)=>t>0?Math.round(v/t*100):0;
+const R=v=>peso(v),pc=(v,t)=>t>0?Math.round(v/t*100):0;
 
 function match(p){
  const parts=[['Bills',p.bills,'var(--mint)'],['Debt payments',p.debt,'var(--pink)'],['Everyday spending',p.everyday,'var(--lime)'],['Goals and savings',p.savings,'hsl(262 75% 80%)']];

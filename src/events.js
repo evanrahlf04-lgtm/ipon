@@ -9,7 +9,7 @@ import {refreshLive} from './fx.js';
 import {setStab} from './views/salary.js';
 import {setBscope,getBscope} from './views/budgets.js';
 import {setRtab} from './views/analytics.js';
-import {takeHome} from './views/tax.js';
+import {takeHome,pk} from './views/tax.js';
 import {setPtab} from './views/bills.js';
 import {settleDebt} from './debts.js';
 import {planHtml} from './views/debts.js';
@@ -66,11 +66,11 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  if(act==='income'){const extra=calc().income-S.income;
   return modal('Monthly income',fld('Monthly income ('+sym()+')','a','number',`inputmode="decimal" step="0.01" min="0" required value="${S.income||''}" placeholder="0"`,'big')+`<p class="note">This amount counts in every month. Income you log as a transaction is added to that one month only${extra>0?` (this month has ${peso(extra)} extra)`:''}.${S.tax.track?' Right now your Pay log sets your income, so this fixed amount is not used until you turn that off on the Salary page.':''}${S.tax.link?' Right now it follows your take-home pay from the Salary page, and saving a different amount stops that.':''}</p>`,f=>{const v=parseFloat(f.get('a'));if(!(v>=0))return false;if(v!==S.income)S.tax.link=false;S.income=v;toast('Income updated')})}
  if(act==='useNet'){const T=S.tax,old=S.income,ol=T.link;T.link=true;syncIncome();save();render();return toast(`Income now follows your take-home, ${peso(S.income)}`,()=>{S.income=old;T.link=ol;save();render()})}
- if(act==='add13'){const T=S.tax,r=empCalc(T.gross,T.th,T.dm),e={id:uid(),date:`${cur.y}-12-24`,type:'income',catId:null,amount:Math.round(r.net13*100)/100,note:'13th month pay'};S.tx.push(e);save();render();return toast('Added to December income',()=>{S.tx=S.tx.filter(x=>x!==e);save();render()})}
+ if(act==='add13'){const T=S.tax,r=empCalc(T.gross,T.th,T.dm),e={id:uid(),date:`${cur.y}-12-24`,type:'income',catId:null,amount:Math.round(r.net13*pk()*100)/100,note:'13th month pay'};S.tx.push(e);save();render();return toast('Added to December income',()=>{S.tx=S.tx.filter(x=>x!==e);save();render()})}
  if(act==='csv')return saveFile(`ipon-transactions.csv`,csv(),'text/csv');
  if(act==='backup')return saveFile('ipon-backup.json',JSON.stringify(S,null,2),'application/json');
  if(act==='restore')return $('#file').click();
- if(act==='addpay'){const k=S.tax.mode==='freelance'?'freelance':'salary',g=S.tax.gross>0&&k==='salary'?Math.round(takeHome(S.tax)/2*100)/100:'';return payEntryModal({id:uid(),kind:k,src:'',net:g,gross:0,paid:true,date:isCur()?T:ds(cur.y,cur.m,1),due:'',note:''},true)}
+ if(act==='addpay'){const k=S.tax.mode==='freelance'?'freelance':'salary',g=S.tax.gross>0&&k==='salary'?Math.round(takeHome(S.tax)/2*pk()*100)/100:'';return payEntryModal({id:uid(),kind:k,src:'',net:g,gross:0,paid:true,date:isCur()?T:ds(cur.y,cur.m,1),due:'',note:''},true)}
  if(act==='taxpay')return taxPayModal();
  if(act==='adddebt'){setPtab('debts');return debtModal({id:uid(),name:'',type:'card',apr:0,min:0,due:0,hue:356,bal0:0,asOf:T},true)}
  if(act==='addbill')return billModal({id:uid(),name:'',amount:0,rep:'monthly',due:0,catId:S.cats[0]&&S.cats[0].id,from:''},true);

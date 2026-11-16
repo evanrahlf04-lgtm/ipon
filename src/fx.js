@@ -60,7 +60,7 @@ const rateText=(from,to,r)=>`1 ${from} = ${fmtRate(r.rate)} ${to} · updated ${w
 // Philippine tax inputs stay in pesos and are not touched.
 function convertAll(r){
  const R=v=>typeof v==='number'&&Number.isFinite(v)?Math.round(v*r*100)/100:v;
- S.income=R(S.income);
+ S.income=R(S.income);['gross','dm','abs','ob'].forEach(k=>{if(typeof S.tax[k]==='number')S.tax[k]=R(S.tax[k])});
  S.cats.forEach(c=>{c.budget=R(c.budget);if(c.mb)Object.keys(c.mb).forEach(k=>{c.mb[k]=R(c.mb[k])})});
  S.tx.forEach(t=>{t.amount=R(t.amount)});
  S.goals.forEach(g=>{g.target=R(g.target);g.auto=R(g.auto);if(typeof g.base==='number')g.base=R(g.base)});
