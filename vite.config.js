@@ -24,7 +24,7 @@ function csp() {
           "style-src 'self' 'unsafe-inline'",
           "font-src 'self'",
           "img-src 'self' data:",
-          "connect-src 'self'" + (host ? ' ' + host : ''),
+          "connect-src 'self' https://open.er-api.com" + (host ? ' ' + host : ''),
           "manifest-src 'self'",
           "worker-src 'self'",
           "base-uri 'self'",

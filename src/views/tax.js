@@ -1,4 +1,5 @@
-import {$,esc,ic,php,PHP,curCode} from '../util.js';
+import {$,esc,ic,php,PHP,curCode,peso} from '../util.js';
+import {phpRate,phpStale,refreshPHP} from '../fx.js';
 import {T,cur,S} from '../state.js';
 import {money,topbar,fold} from '../ui.js';
 const BR=[[0,0,0],[250000,0,.15],[400000,22500,.20],[800000,102500,.25],[2000000,402500,.30],[8000000,2202500,.35]];
@@ -47,12 +48,13 @@ function cutHtml(r){const C=S.tax.cut,items=[['sss','SSS',r.sss],['ph','PhilHeal
  <div class="pr" style="margin-top:8px"><span>Half of monthly compensation</span><b>${php(c.pay)}</b></div>${c.dm?`<div class="pr"><span>De minimis share</span><b>+${php(c.dm)}</b></div>`:''}${c.ded.map(d=>`<div class="pr"><span>${d[0]}</span><b>−${php(Math.round(d[1]*100)/100)}</b></div>`).join('')||'<div class="pr"><span class="mute">No deductions on this payday</span></div>'}</div>`).join('')}</div>
  <p class="note" style="margin-top:12px">Both paydays add up to ${php(Math.round((cuts[0].net+cuts[1].net)*100)/100)} a month.</p>`)}
 function tax(){const T=S.tax,g=T.gross,emp=T.mode==='employee';
- return (curCode()!=='PHP'?`<section class="panel fade" data-nojump><p class="note" style="margin:0">This calculator works out Philippine tax in pesos. Your budget is in ${curCode()}, so if you use take-home pay as your income, the peso amount is copied as is and not converted.</p></section>`:'')+`<section class="panel fade" data-sec="Inputs"><div class="hrow" style="align-items:center"><div class="seg" id="tm"><button data-tm="employee" class="${emp?'on':''}">Employee</button><button data-tm="freelance" class="${!emp?'on':''}">Freelancer</button></div>
- <div class="checks"><label class="chk"><input type="checkbox" id="tlink" ${T.link?'checked':''}>Use my take-home pay as my monthly income (${php(S.income)})</label>${emp?`<label class="chk"><input type="checkbox" id="tth" ${T.th?'checked':''}>Include 13th month pay</label>`:''}</div></div>
+ if(phpStale())refreshPHP(()=>{syncIncome();import('../render.js').then(m=>m.render())});
+ return (curCode()!=='PHP'?`<section class="panel fade" data-nojump><p class="note" style="margin:0">This calculator works out Philippine tax in pesos. ${phpRate()?`Your take-home pay is converted to ${curCode()} for your budget at 1 PHP = ${phpRate().toLocaleString('en-US',{maximumSignificantDigits:4})} ${curCode()}.`:`Today's exchange rate is not available yet, so the peso amount is used as is.`}</p></section>`:'')+`<section class="panel fade" data-sec="Inputs"><div class="hrow" style="align-items:center"><div class="seg" id="tm"><button data-tm="employee" class="${emp?'on':''}">Employee</button><button data-tm="freelance" class="${!emp?'on':''}">Freelancer</button></div>
+ <div class="checks"><label class="chk"><input type="checkbox" id="tlink" ${T.link?'checked':''}>Use my take-home pay as my monthly income (${peso(S.income)})</label>${emp?`<label class="chk"><input type="checkbox" id="tth" ${T.th?'checked':''}>Include 13th month pay</label>`:''}</div></div>
  <div class="cgrid"><label class="fld">${emp?'Total gross pay (₱/month)':'Gross receipts (₱/month)'}<input id="tg" type="number" inputmode="decimal" min="0" step="any" value="${g||''}"></label>
  ${emp?`<label class="fld">De minimis (₱/month)<input id="tdm" type="number" inputmode="decimal" min="0" step="any" value="${T.dm||0}"></label>`:''}
  ${emp&&T.th?`<label class="fld">Months worked<select id="t13m">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${(T.mw||12)===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label><label class="fld">Unpaid absences (₱)<input id="t13a" type="number" inputmode="decimal" min="0" step="any" value="${T.abs||0}"></label><label class="fld">Other bonuses (₱)<input id="t13o" type="number" inputmode="decimal" min="0" step="any" value="${T.ob||0}"></label>`:''}</div>
- <p class="note" style="margin-top:14px">${T.link?'Your Overview and budgets use the take-home pay calculated below, so editing your pay here updates them everywhere.':`Your Overview income is set separately (${php(S.income)}). Tick the box above to follow your take-home pay instead.`}${emp?' Enter your total gross pay before deductions. Basic compensation is that amount minus de minimis.':''}</p></section>
+ <p class="note" style="margin-top:14px">${T.link?'Your Overview and budgets use the take-home pay calculated below, so editing your pay here updates them everywhere.':`Your Overview income is set separately (${peso(S.income)}). Tick the box above to follow your take-home pay instead.`}${emp?' Enter your total gross pay before deductions. Basic compensation is that amount minus de minimis.':''}</p></section>
  <div id="taxres" class="fade">${taxRes()}</div>
  <section class="panel fade" data-sec="Sources"><details class="src"><summary>Sources and assumptions</summary><ul>
  <li>SSS: RA 11199, 15% of monthly salary credit, employee pays 5%, credit from ₱5,000 to ₱35,000 in ₱500 steps. Source: SweldoPH SSS guide (sweldoph.com/guides/sss-contribution).</li>
@@ -70,5 +72,5 @@ function takeHome(T){
  const G=T.gross*12,o8=G<=3000000?Math.max(0,G-250000)*.08:Infinity,pt=G*.03,best=Math.min(o8,bracketTax(G*.6)+pt,bracketTax(G)+pt);
  return Math.round(T.gross-best/12);
 }
-function syncIncome(){if(S.tax.link)S.income=takeHome(S.tax)}
+function syncIncome(){if(S.tax.link){const r=phpRate();S.income=Math.round(takeHome(S.tax)*(r||1)*100)/100}}
 export {tax,taxRes,empCalc,takeHome,syncIncome,bracketTax};

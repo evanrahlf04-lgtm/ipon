@@ -21,7 +21,7 @@ import {taxRes,empCalc,syncIncome} from './views/tax.js';
 import {txPart} from './views/home.js';
 // Re-draws only the transaction list so typing in search never rebuilds the whole page.
 // Keeps the "use my take-home" label showing the current income while typing.
-function linkLabel(){const c=$('#tlink');if(c&&c.nextSibling)c.nextSibling.textContent='Use my take-home pay as my monthly income ('+php(S.income)+')'}
+function linkLabel(){const c=$('#tlink');if(c&&c.nextSibling)c.nextSibling.textContent='Use my take-home pay as my monthly income ('+peso(S.income)+')'}
 function refreshList(){const l=$('#txlist');if(!l)return;const p=txPart();l.innerHTML=p.html;const c=$('#tcount');if(c)c.textContent=p.count+' total'}
 document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]'),act=A&&A.dataset.act;
  const nv=t.closest('.nav[data-v]');if(nv){setView(nv.dataset.v);render();return window.scrollTo({top:0})}

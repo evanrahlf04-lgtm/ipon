@@ -18,6 +18,8 @@ const list=(v,max)=>Array.isArray(v)?v.slice(0,max).filter(isObj):[];
 // Sets only fields that have a value, so defaults applied later are not overwritten with undefined.
 const put=(o,k,v)=>{if(v!==undefined&&v!==null)o[k]=v;return o};
 
+// The original amount and currency of an entry that was converted.
+const fx=v=>{if(!isObj(v))return null;const a=num(v.a,0,MAXN,undefined);return a!==undefined&&typeof v.c==='string'&&/^[A-Z]{3}$/.test(v.c)?{a,c:v.c}:null};
 function cat(c){
  const o={id:sid(c.id)||uid(),name:str(c.name,60)||'Category',budget:num(c.budget,0,MAXN,0),due:int(c.due,0,31,0),icon:ICONS.has(c.icon)?c.icon:'tag',hue:int(c.hue,0,360,200)};
  if(GROUPS.has(c.grp))o.grp=c.grp;
@@ -28,7 +30,7 @@ function tx(t){
  if(!type||!date||amount===undefined)return null;
  const o={id:sid(t.id)||uid(),date,type,catId:t.catId?sid(t.catId):null,amount,note:str(t.note,200)};
  if(t.billId)o.billId=sid(t.billId);if(mon(t.bm))o.bm=t.bm;if(t.debtId)o.debtId=sid(t.debtId);if(t.goalId)o.goalId=sid(t.goalId);
- if(t.full)o.full=1;if(t.taxPay)o.taxPay=1;return o}
+ if(t.full)o.full=1;if(t.taxPay)o.taxPay=1;const f=fx(t.fx);if(f)o.fx=f;return o}
 function goal(g){
  const o={id:sid(g.id)||uid(),name:str(g.name,60)||'Goal',target:num(g.target,0,MAXN,0),saved:num(g.saved,0,MAXN,0),date:day(g.date),auto:num(g.auto,0,MAXN,0),autoDay:int(g.autoDay,0,31,0)};
  put(o,'base',num(g.base,-MAXN,MAXN,undefined));return o}
@@ -40,7 +42,7 @@ function debt(d){
  return{id:sid(d.id)||uid(),name:str(d.name,60)||'Debt',type:pick(d.type,['card','loan','personal','other'],'other'),apr:num(d.apr,0,1000,0),min:num(d.min,0,MAXN,0),due:int(d.due,0,31,0),hue:int(d.hue,0,360,356),bal0:num(d.bal0,0,MAXN,0),asOf:day(d.asOf),orig:num(d.orig,0,MAXN,0)}}
 function pay(p){
  const date=day(p.date);if(!date)return null;
- return{id:sid(p.id)||uid(),kind:pick(p.kind,['salary','freelance','other'],'other'),src:str(p.src,40),net:num(p.net,0,MAXN,0),gross:num(p.gross,0,MAXN,0),paid:!!p.paid,date,due:day(p.due),note:str(p.note,60)}}
+ const o={id:sid(p.id)||uid(),kind:pick(p.kind,['salary','freelance','other'],'other'),src:str(p.src,40),net:num(p.net,0,MAXN,0),gross:num(p.gross,0,MAXN,0),paid:!!p.paid,date,due:day(p.due),note:str(p.note,60)};const f=fx(p.fx);if(f)o.fx=f;return o}
 function tax(t){
  if(!isObj(t))return undefined;
  const o={};
@@ -63,6 +65,7 @@ export function clean(d){
  if(Array.isArray(d.pay))out.pay=list(d.pay,LIMIT.other).map(pay).filter(Boolean);
  const t=tax(d.tax);if(t)out.tax=t;
  if(typeof d.currency==='string'&&/^[A-Z]{3}$/.test(d.currency))out.currency=d.currency;
+ if(isObj(d.fxPHP)){const r=num(d.fxPHP.rate,0,1e7,undefined);if(r>0)out.fxPHP={rate:r,updated:num(d.fxPHP.updated,0,9e15,0),time:num(d.fxPHP.time,0,9e15,0)}}
  if(isObj(d.alerts)){out.alerts={};if(typeof d.alerts.on==='boolean')out.alerts.on=d.alerts.on;put(out.alerts,'warn',int(d.alerts.warn,50,100,undefined))}
  if(isObj(d.debtPlan)){out.debtPlan={};put(out.debtPlan,'extra',num(d.debtPlan.extra,0,MAXN,undefined));if(['avalanche','snowball'].includes(d.debtPlan.method))out.debtPlan.method=d.debtPlan.method}
  return out}

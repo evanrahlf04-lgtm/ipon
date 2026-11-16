@@ -2,13 +2,16 @@
 // An entry with paid=false is an invoice you are still waiting on. It only counts as income once received.
 import {S,now,mk} from './state.js';
 import {bracketTax} from './views/tax.js';
+import {phpRate} from './fx.js';
 import {HUES,uid} from './util.js';
 
 const KINDS={salary:['Salary','building'],freelance:['Freelance','phone'],other:['Other','gift']};
 const yearOf=y=>S.pay.filter(p=>p.paid&&p.date.startsWith(String(y)));
 const monthPay=(y,m)=>S.pay.filter(p=>p.date.startsWith(mk(y,m))).sort((a,b)=>b.date.localeCompare(a.date));
 const waiting=()=>S.pay.filter(p=>!p.paid).sort((a,b)=>(a.due||a.date).localeCompare(b.due||b.date));
-const receipts=p=>p.gross>0?p.gross:p.net;
+// Budget amounts back to pesos for Philippine tax (unchanged when the budget is in pesos or no rate is known).
+const toPHP=v=>{const r=phpRate();return S.currency!=='PHP'&&r?v/r:v};
+const receipts=p=>toPHP(p.gross>0?p.gross:p.net);
 
 // Philippine freelancer income tax on receipts so far this year. Estimate only.
 // 8% flat: 8% of receipts over 250,000 (up to 3M). Otherwise graduated rates plus 3% percentage tax,
@@ -31,7 +34,7 @@ function quarters(y,opt){
  out.push({q:'Annual',span:`Full year ${y}`,due:`${y+1}-04-15`,inQ:Math.max(0,all-cum),cum:all,tax:tY,add:Math.max(0,tY-prevTax)});
  return{rows:out,receipts:all,tax:tY}}
 
-const taxPaid=y=>S.tx.filter(t=>t.taxPay&&t.date.startsWith(String(y))).reduce((a,t)=>a+t.amount,0);
+const taxPaid=y=>S.tx.filter(t=>t.taxPay&&t.date.startsWith(String(y))).reduce((a,t)=>a+toPHP(t.amount),0);
 const taxCat=()=>{let c=S.cats.find(x=>/tax/i.test(x.name));if(!c){c={id:uid(),name:'Taxes',budget:0,due:0,icon:'tag',hue:HUES[S.cats.length%HUES.length]};S.cats.push(c)}return c.id};
 const dayDiff=d=>Math.round((new Date(d+'T00:00')-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/864e5);
 export{KINDS,OPTS,yearOf,monthPay,waiting,receipts,taxEst,quarters,taxPaid,taxCat,dayDiff};
