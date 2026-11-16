@@ -47,7 +47,7 @@ function cutHtml(r){const C=S.tax.cut,items=[['sss','SSS',r.sss],['ph','PhilHeal
  <div class="pr" style="margin-top:8px"><span>Half of monthly compensation</span><b>${peso(c.pay)}</b></div>${c.dm?`<div class="pr"><span>De minimis share</span><b>+${peso(c.dm)}</b></div>`:''}${c.ded.map(d=>`<div class="pr"><span>${d[0]}</span><b>−${peso(Math.round(d[1]*100)/100)}</b></div>`).join('')||'<div class="pr"><span class="mute">No deductions on this payday</span></div>'}</div>`).join('')}</div>
  <p class="note" style="margin-top:12px">Both paydays add up to ${peso(Math.round((cuts[0].net+cuts[1].net)*100)/100)} a month.</p></section>`}
 function tax(){const T=S.tax,g=T.gross,emp=T.mode==='employee';
- return topbar('Salary','Your pay, take-home and Philippine tax for 2026 · estimate',true)+`<section class="panel fade" data-sec="Inputs"><div class="hrow" style="align-items:center"><div class="seg" id="tm"><button data-tm="employee" class="${emp?'on':''}">Employee</button><button data-tm="freelance" class="${!emp?'on':''}">Freelancer</button></div>
+ return `<section class="panel fade" data-sec="Inputs"><div class="hrow" style="align-items:center"><div class="seg" id="tm"><button data-tm="employee" class="${emp?'on':''}">Employee</button><button data-tm="freelance" class="${!emp?'on':''}">Freelancer</button></div>
  <div class="checks"><label class="chk"><input type="checkbox" id="tlink" ${T.link?'checked':''}>Use my take-home pay as my monthly income (${peso(S.income)})</label>${emp?`<label class="chk"><input type="checkbox" id="tth" ${T.th?'checked':''}>Include 13th month pay</label>`:''}</div></div>
  <div class="cgrid"><label class="fld">${emp?'Total gross pay (₱/month)':'Gross receipts (₱/month)'}<input id="tg" type="number" inputmode="decimal" min="0" step="any" value="${g||''}"></label>
  ${emp?`<label class="fld">De minimis (₱/month)<input id="tdm" type="number" inputmode="decimal" min="0" step="any" value="${T.dm||0}"></label>`:''}
@@ -71,4 +71,4 @@ function takeHome(T){
  return Math.round(T.gross-best/12);
 }
 function syncIncome(){if(S.tax.link)S.income=takeHome(S.tax)}
-export {tax,taxRes,empCalc,takeHome,syncIncome};
+export {tax,taxRes,empCalc,takeHome,syncIncome,bracketTax};

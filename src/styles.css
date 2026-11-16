@@ -350,3 +350,22 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .incbtn b{color:var(--ink)}.incbtn:hover{background:var(--hover)}.incbtn:active{transform:scale(.96)}
 .bsum .bs .bsi{display:block;text-align:left;border-radius:14px;margin:-6px;padding:6px;transition:background .2s}
 .bsum .bs .bsi:hover{background:var(--hover)}.bsum .bs .bsi small{display:flex;align-items:center;gap:4px}
+
+/* Payables */
+.pb{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 6px;border-radius:18px;width:100%;text-align:left;transition:background .15s}
+.pb+.pb{border-top:1px solid var(--line)}
+button.pb:hover{background:var(--hover)}
+.pb .n{display:block;min-width:0;text-align:left}.pb .n b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pb .n span{font-size:12px;color:var(--mute)}
+.pb .n .bar{margin-top:6px}
+.pb .am{font-weight:700;font-size:15px;text-align:right}.pb .am small{display:block;font-size:11px;font-weight:500;color:var(--mute)}
+.pb .pa2{display:flex;gap:6px;justify-content:flex-end}
+.pb.done .n b,.pb.done .am{opacity:.55}
+.pb .go{width:36px;height:36px;border-radius:50%;background:var(--glass);display:grid;place-items:center;color:var(--ink)}
+.alertbar{border-color:var(--bad-soft)}
+.nav[data-n]{position:relative}
+.nav.alert::after{content:attr(data-n);position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;line-height:1}
+@media(max-width:700px){.pb{grid-template-columns:44px minmax(0,1fr) auto}.pb .pa2{grid-column:2/-1;justify-content:flex-start}.pb .go{display:none}}
+.pb .am.in{color:var(--good)}
+/* Goal history */
+.gh{margin-top:6px;font-size:12px}.gh summary{cursor:pointer;color:var(--mute);list-style:none;padding:4px 0}.gh summary::-webkit-details-marker{display:none}.gh summary::before{content:'▸ '}.gh[open] summary::before{content:'▾ '}
+.ghr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;width:100%;text-align:left;padding:8px 6px;border-radius:12px;align-items:center}.ghr:hover{background:var(--hover)}.ghr .mute{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghr b{color:var(--good)}

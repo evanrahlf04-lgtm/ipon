@@ -1,5 +1,5 @@
 import {$} from './util.js';
-import {user,setUser,setSaveHook,setView,setCur,now,loadLocal,clearLocal,adopt} from './state.js';
+import {S,user,setUser,setSaveHook,setView,setCur,now,loadLocal,clearLocal,adopt} from './state.js';
 import {configured,sb,pull,push,flush,setErrorHandler} from './sync.js';
 import {showAuth,hideAuth} from './auth.js';
 import {render} from './render.js';
@@ -44,7 +44,7 @@ export async function signOut(){
 
 async function demo(){
  const {demoState}=await import('./demo.js');
- setUser({id:'demo',email:'demo@local'});adopt(demoState(),Date.now());hideAuth();app().hidden=false;render();
+ setUser({id:'demo',email:'demo@local'});adopt(demoState(),Date.now());const {linkBill}=await import('./debts.js'),{linkGoalBill}=await import('./goals.js');S.debts.forEach(linkBill);S.goals.forEach(linkGoalBill);hideAuth();app().hidden=false;render();
 }
 
 export function start(){
