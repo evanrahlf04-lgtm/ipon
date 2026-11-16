@@ -682,8 +682,9 @@ b,strong{font-weight:600}
 /* the accent: page-level tab and the main action keep it; section chips and the avatar go quiet */
 .jump button.on{background:var(--soft2);border-color:var(--border);color:var(--ink);font-weight:600}
 .av{background:var(--soft2);color:var(--ink);font-weight:600}
-/* stat tiles: neutral dots, only an overdue tile keeps a colour because it means something */
-.tile,.t-lime,.t-mint,.t-pink,.t-lilac{--dotc:var(--barhov)}
+/* stat tile dots keep their colours (lime, mint, pink, lilac) so each tile reads at a glance */
+.tile em{min-height:2.7em}
+.tile small{align-items:flex-start}.tile small::before{margin-top:6px}
 .t-late{--dotc:var(--bad)}
 /* motion: one easing curve, no overshoot */
 .fab{animation:pop .24s cubic-bezier(.2,.8,.2,1)}
