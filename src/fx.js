@@ -12,10 +12,12 @@ const mem={},pending={};
 function load(base){try{const v=JSON.parse(localStorage.getItem(KEY+base)||'null');return v&&v.rates&&v.time?v:null}catch(e){return null}}
 
 // All rates for one base currency. Uses the cache while fresh; if the network fails, falls back to an older copy.
-async function table(base){
+async function table(base,force){
  if(!CODES.has(base))throw new Error('Unsupported currency');
  const c=mem[base]||load(base);
- if(c&&Date.now()-c.time<TTL)return mem[base]=c;
+ if(c&&!force&&Date.now()-c.time<TTL)return mem[base]=c;
+ // A forced refresh never hits the service more than once every 5 minutes.
+ if(c&&force&&Date.now()-c.time<3e5)return mem[base]=c;
  if(pending[base])return pending[base];
  pending[base]=(async()=>{
   try{
@@ -40,6 +42,15 @@ async function rate(from,to){
  return{rate:v,updated:t.updated}}
 // Same, but only from what is already cached (for use while saving a form).
 function cached(from,to){if(from===to)return 1;const t=mem[from]||load(from);return t&&t.rates[to]>0?t.rates[to]:null}
+
+// ----- live value of money received in other currencies, against the budget currency -----
+const baseTable=()=>{const b=S.currency;return mem[b]||load(b)};
+// What 1 unit of `code` is worth in the budget currency right now, from cached rates (null if not known yet).
+function liveRate(code){if(code===S.currency)return 1;const t=baseTable(),v=t&&t.rates[code];return v>0?1/v:null}
+const liveInfo=()=>{const t=baseTable();return t?{updated:t.updated,fetched:t.time}:null};
+const liveStale=()=>{const t=baseTable();return !t||Date.now()-t.time>36e5};
+// Fetch the budget currency's table (all rates at once). force=true asks for new numbers.
+async function refreshLive(force){const t=await table(S.currency,force);return{updated:t.updated,fetched:t.time}}
 
 const when=ms=>{const d=new Date(ms);return`${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()}`};
 const fmtRate=v=>v>=100?v.toLocaleString('en-US',{maximumFractionDigits:2}):v>=1?v.toLocaleString('en-US',{maximumFractionDigits:4}):v.toLocaleString('en-US',{maximumSignificantDigits:4});
@@ -70,4 +81,4 @@ async function refreshPHP(after){
 }
 const phpStale=()=>S.currency!=='PHP'&&(!S.fxPHP||!(S.fxPHP.time>0)||Date.now()-S.fxPHP.time>TTL);
 
-export{rate,cached,rateText,convertAll,phpRate,refreshPHP,phpStale,ATTR};
+export{rate,cached,rateText,convertAll,phpRate,refreshPHP,phpStale,ATTR,liveRate,liveInfo,liveStale,refreshLive,when};

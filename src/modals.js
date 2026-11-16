@@ -116,7 +116,7 @@ function fxWire(){const sh=$('#sh');if(!sh)return;const sel=sh.querySelector('[n
 // On save: convert a foreign amount with the rate already fetched. Returns null to keep the form open.
 function fxApply(f){const c=f.get('fxc'),to=curCode();if(!c||c===to)return{};const a=parseFloat(f.get('a'));if(!(a>0))return{};
  const r=cached(c,to);if(!r){toast("Getting today's rate. Try again in a moment.");rate(c,to).catch(()=>{});return null}
- f.set('a',String(Math.round(a*r*100)/100));return{fx:{a,c}}}
+ f.set('a',String(Math.round(a*r*100)/100));const g=parseFloat(f.get('gross'));if(g>0&&f.has('gross'))f.set('gross',String(Math.round(g*r*100)/100));return{fx:{a,c}}}
 // Choose the budget currency. Either convert every saved amount at today's rate, or only change the symbol.
 function currencyModal(){
  const from=curCode();
