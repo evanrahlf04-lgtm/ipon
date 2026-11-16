@@ -46,8 +46,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Ipon',
-        short_name: 'Ipon',
+        name: 'Tally',
+        short_name: 'Tally',
         description: 'Mag-ipon tayo. Budget, goals and Philippine tax estimates.',
         theme_color: '#f3eeea',
         background_color: '#ebe8fb',

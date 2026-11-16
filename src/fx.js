@@ -1,5 +1,5 @@
 // Live exchange rates from ExchangeRate-API's free open-access endpoint (no key, updated daily).
-// Only a currency code is sent. Rates are checked, limited to the currencies Ipon offers, and cached
+// Only a currency code is sent. Rates are checked, limited to the currencies Tally offers, and cached
 // for 12 hours in memory and on this device, so the app keeps working offline with the last rates.
 import {S,save} from './state.js';
 import {CURRENCIES,MN} from './util.js';

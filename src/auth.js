@@ -7,7 +7,7 @@ const TITLES={
  signup:['Create your account','Your budget is private to your account.'],
  forgot:['Reset password','We will email you a link to choose a new one.'],
  recover:['Choose a new password','Use at least 8 characters.'],
- setup:['Setup needed','This copy of Ipon is not connected to a server yet.']
+ setup:['Setup needed','This copy of Tally is not connected to a server yet.']
 };
 
 export function hideAuth(){const a=$('#auth');a.hidden=true;a.innerHTML=''}
@@ -26,7 +26,7 @@ export function showAuth(mode,opts={},msg=''){
    <button class="btn" id="ab">${{signin:'Sign in',signup:'Create account',forgot:'Send reset link',recover:'Save password'}[mode]}</button>
   </form>
   <div class="alinks">${mode==='signin'?`<button type="button" data-go="forgot">Forgot password?</button><button type="button" data-go="signup">Create an account</button>`:mode==='signup'?`<button type="button" data-go="signin">I already have an account</button>`:mode==='forgot'?`<button type="button" data-go="signin">Back to sign in</button>`:''}</div>`;
- a.innerHTML=`<div class="authcard"><div class="logorow">${ic('logo','lg').replace('class="i lg"','class="logo"')}<span class="brand" style="display:block"><b>ipon</b><small>Mag-ipon tayo.</small></span></div><h1 class="serif">${h}</h1><p class="sub">${sub}</p>${body}</div>`;
+ a.innerHTML=`<div class="authcard"><div class="logorow">${ic('logo','lg').replace('class="i lg"','class="logo"')}<span class="brand" style="display:block"><b>tally</b><small>Mag-ipon tayo.</small></span></div><h1 class="serif">${h}</h1><p class="sub">${sub}</p>${body}</div>`;
  a.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>showAuth(b.dataset.go));
  const f=$('#af');if(!f)return;
  f.onsubmit=async ev=>{

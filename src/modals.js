@@ -75,7 +75,7 @@ function debtModal(d,isNew){
   fld('Minimum payment each month ('+sym()+')','min','number',`inputmode="decimal" step="0.01" min="0" value="${d.min||''}" placeholder="0 if none"`)+
   fld('Due day of the month (1 to 31)','due','number',`min="1" max="31" step="1" inputmode="numeric" value="${d.due||''}"`)+
   fld('Original amount (optional, for the progress bar)','orig','number',`inputmode="decimal" step="0.01" min="0" value="${d.orig||''}"`)+
-  `<p class="note">With a minimum payment, Ipon adds this debt to your Payables as a monthly bill so you see its due date.</p>`,
+  `<p class="note">With a minimum payment, Tally adds this debt to your Payables as a monthly bill so you see its due date.</p>`,
   f=>{const n=(f.get('n')||'').trim(),bal=parseFloat(f.get('bal')),min=parseFloat(f.get('min'))||0,due=parseInt(f.get('due'))||0;
    if(!n||!(bal>=0))return false;if(min>0&&!(due>=1&&due<=31)){toast('Add a due day from 1 to 31');return false}
    const was=isNew?null:balance(d);

@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Ipon
+title Tally
 
 if not exist package.json (
   echo This file must sit inside the unzipped ipon folder, next to package.json.
@@ -36,7 +36,7 @@ if not exist node_modules (
   )
 )
 
-echo Starting Ipon at http://localhost:5173 - keep this window open while you use it.
+echo Starting Tally at http://localhost:5173 - keep this window open while you use it.
 start "" cmd /c "timeout /t 5 >nul & start http://localhost:5173"
 call npm run dev
 pause
