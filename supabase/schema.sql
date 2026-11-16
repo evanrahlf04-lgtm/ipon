@@ -16,3 +16,7 @@ create policy "update own data" on public.user_data
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "delete own data" on public.user_data
   for delete using (auth.uid() = user_id);
+
+-- Optional hardening: refuse a budget document larger than about 2 MB.
+-- Run once in the Supabase SQL editor if you want a size limit on stored data.
+-- alter table public.user_data add constraint user_data_size check (pg_column_size(data) < 2000000);

@@ -32,7 +32,7 @@ function ahead(f){
  <p class="note" style="margin-top:10px">Uses your bills due in each month, ${f.hist?`your average everyday spending over the last ${f.hist} month${f.hist>1?'s':''}`:'your category budgets for everyday spending'}, and goals with a target date. Income is your fixed amount, or the average of your recent logged pay.</p></section>`}
 
 function highlights(list){
- return `<section class="panel fade" data-sec="Highlights"><div class="sec"><h2>Highlights</h2></div>${list.map(x=>`<div class="pace ${x.cls}" style="align-items:flex-start;font-size:14px;margin-bottom:10px;color:${x.cls==='late'?'var(--bad)':x.cls==='ok'?'var(--good)':'var(--ink)'}"><span style="margin-top:2px">${ic(x.i,'sm')}</span><span style="flex:1">${x.t}${x.x?`<br><button class="btn sm" style="margin-top:8px" data-useextra="${x.x}">Use ${R(x.x)} as my extra debt payment</button>`:''}</span></div>`).join('')}</section>`}
+ return `<section class="panel fade" data-sec="Highlights"><div class="sec"><h2>Highlights</h2></div>${list.map(x=>`<div class="pace ${x.cls}" style="align-items:flex-start;font-size:14px;margin-bottom:10px;color:${x.cls==='late'?'var(--bad)':x.cls==='ok'?'var(--good)':'var(--ink)'}"><span style="margin-top:2px">${ic(x.i,'sm')}</span><span style="flex:1">${esc(x.t)}${x.x?`<br><button class="btn sm" style="margin-top:8px" data-useextra="${x.x}">Use ${R(x.x)} as my extra debt payment</button>`:''}</span></div>`).join('')}</section>`}
 
 let tab='report';
 const setRtab=v=>{tab=v},getRtab=()=>tab;

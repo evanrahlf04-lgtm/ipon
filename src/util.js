@@ -9,5 +9,5 @@ const MF=['January','February','March','April','May','June','July','August','Sep
 const HUES=[68,173,356,262,28,205,100,320,45,140];
 const ICONS=['bus','house','bolt','drop','fork','coffee','building','shirt','wifi','bank','cart','tag','heart','phone','gift'];
 const uid=()=>Math.random().toString(36).slice(2,9);
-const ic=(n,c='')=>`<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const ic=(n,c='')=>`<svg class="i ${String(c).replace(/[^\w -]/g,'')}" aria-hidden="true"><use href="#i-${String(n).replace(/[^a-z0-9-]/gi,'')}"/></svg>`;
 export {$,esc,fmt,peso,pad,ds,MN,MF,HUES,ICONS,uid,ic};

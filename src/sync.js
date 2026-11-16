@@ -11,6 +11,8 @@ export async function pull(uid){
 }
 async function send(){
  const p=pending;if(!p)return true;pending=null;
+ // Refuse to upload an oversized document (the server may reject it too). It stays saved on this device.
+ if(JSON.stringify(p.data).length>2e6){onError(new Error('Data too large to sync'));return false}
  const {error}=await sb.from('user_data').upsert({user_id:p.uid,data:p.data,updated_at:new Date(p.ts).toISOString()});
  if(error){pending=pending||p;onError(error);return false}
  return true;

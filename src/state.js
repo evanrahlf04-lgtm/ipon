@@ -1,5 +1,6 @@
 import {pad,ds,HUES} from './util.js';
 import {dueLeft} from './bills.js';
+import {clean} from './sanitize.js';
 const KEY='ipon-v6',TK='ipon-theme';
 const now=new Date(),T=ds(now.getFullYear(),now.getMonth(),now.getDate());
 let cur={y:now.getFullYear(),m:now.getMonth()},view='home',q='',ft='all',fc='all',tl=innerWidth<861?12:30,user=null,savedAt=0,saveHook=null;
@@ -23,7 +24,7 @@ norm();
 const localKey=()=>`${KEY}:${user?user.id:'anon'}`;
 function loadLocal(){try{return JSON.parse(localStorage.getItem(localKey())||'null')}catch(e){return null}}
 function clearLocal(){try{localStorage.removeItem(localKey())}catch(e){}}
-function adopt(data,ts){S=data&&Array.isArray(data.cats)?data:emptyState();norm();savedAt=ts||0}
+function adopt(data,ts){S=(data&&Array.isArray(data.cats)&&clean(data))||emptyState();norm();savedAt=ts||0}
 const getSavedAt=()=>savedAt;
 const save=()=>{syncGoals();savedAt=Date.now();try{localStorage.setItem(localKey(),JSON.stringify({ts:savedAt,data:S}))}catch(e){}if(saveHook)saveHook(S,savedAt)};
 const mk=(y=cur.y,m=cur.m)=>`${y}-${pad(m+1)}`;
@@ -51,4 +52,4 @@ function calc(){const k=mk(),tx=S.tx.filter(t=>t.date.startsWith(k)),by={};let e
  return{tx,by,spent,saved,income,left,unpaid,proj,free,budget:S.cats.reduce((a,c)=>a+budgetOf(c),0),day,dm}}
 // Rows shown in the transaction list at a time: fewer on phones.
 const PAGE=()=>innerWidth<861?12:30;
-export {PAGE,KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,GROUPS,grpOf,budgetOf};
+export {clean,PAGE,KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,GROUPS,grpOf,budgetOf};

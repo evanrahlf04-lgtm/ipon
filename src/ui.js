@@ -1,6 +1,6 @@
 import {$,esc,pad,MN,ic} from './util.js';
 import {T,cur,S,user} from './state.js';
-const tone=(h,icn,cls='ico')=>`<span class="tone ${cls}" style="--h:${h}">${ic(icn)}</span>`;
+const tone=(h,icn,cls='ico')=>`<span class="tone ${cls}" style="--h:${Number(h)||0}">${ic(icn)}</span>`;
 function toast(m,undo){const t=$('#toast');t.innerHTML=`<div class="toast" role="status">${esc(m)}${undo?'<button id="undo">Undo</button>':''}</div>`;clearTimeout(toast.h);const hide=()=>{const e=t.firstElementChild;if(!e)return;e.classList.add('out');setTimeout(()=>{if(t.firstElementChild===e)t.innerHTML=''},200)};toast.h=setTimeout(hide,undo?5000:2400);if(undo)$('#undo').onclick=()=>{undo();clearTimeout(toast.h);hide()}}
 const money=n=>{const a=Math.abs(n),w=Math.floor(a),c=Math.round((a-w)*100);return(n<0?'−':'')+'₱'+w.toLocaleString('en-PH')+(c?`<small>.${pad(c)}</small>`:'')};
 const monHtml=()=>`<div class="mon"><button data-m="-1" aria-label="Previous month">${ic('l','sm')}</button><span>${MN[cur.m]} ${cur.y}</span><button data-m="1" aria-label="Next month">${ic('r','sm')}</button></div>`;
