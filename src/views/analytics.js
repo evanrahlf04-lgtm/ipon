@@ -1,6 +1,6 @@
 import {esc,peso,MF,ic} from '../util.js';
 import {cur,S,grpOf} from '../state.js';
-import {tone,topbar} from '../ui.js';
+import {tone,topbar,monHtml,fold} from '../ui.js';
 import {report} from './report.js';
 import {monthPlan,split,catRows,forecast,insights} from '../analytics.js';
 
@@ -19,13 +19,13 @@ function match(p){
 
 function rule(p){
  const g=split(p.s,p.income),inc=p.income,T=[['need','Needs','Rent, utilities, groceries, transport',50],['want','Wants','Eating out, shopping, treats',30],['sd','Savings and debt','Goals, emergency fund, debt payments',20]];
- return `<section class="panel fade" data-sec="50/30/20"><div class="sec"><h2>Needs, wants, savings</h2><span class="mute">${MF[cur.m]}</span></div>
+ return fold('rule','Needs, wants, savings',MF[cur.m],`
  <div class="hl">${T.map(([k,l,h,t])=>{const a=pc(g[k].act,inc),pl=pc(g[k].plan,inc),hi=k==='sd'?a<t:a>t;return `<div class="hr"><div style="grid-column:1/-1"><div class="t"><span><b>${l}</b> <span class="mute">· aim for about ${t}%</span></span><span class="${hi?'over':''}">${a}% spent · ${pl}% planned</span></div><div class="bar"><i style="width:${Math.min(100,a)}%;background:${hi?'var(--bad)':'var(--accent)'}"></i></div><small class="mute">${h} · ${R(g[k].act)} spent of ${R(g[k].plan)} planned</small></div></div>`}).join('')}</div>
- <p class="note" style="margin-top:10px">A common guideline, not a rule. Each category's group comes from its name. Change it in the category form if it is wrong. Debt payments above the minimum count toward savings and debt.</p></section>`}
+ <p class="note" style="margin-top:10px">A common guideline, not a rule. Each category's group comes from its name. Change it in the category form if it is wrong. Debt payments above the minimum count toward savings and debt.</p>`,'50/30/20')}
 
 function catTable(p){
  const rows=catRows(p.s);
- return `<section class="panel fade" data-sec="Budget vs actual"><div class="sec"><h2>Budget vs actual</h2><span class="mute">${MF[cur.m]}</span></div>${rows.length?rows.map(r=>{const o=r.sp>r.b&&r.b>0&&grpOf(r.c)!=='save',w=r.b?Math.min(100,r.sp/r.b*100):100;return `<div class="hr" style="margin-bottom:12px">${tone(r.c.hue,r.c.icon)}<div><div class="t"><span>${esc(r.c.name)}</span><span class="${o?'over':''}">${R(r.sp)} of ${R(r.b)}</span></div><div class="bar"><i style="width:${w}%;background:${o?'var(--bad)':`hsl(${r.c.hue} 75% 48%)`}"></i></div><small class="mute">${r.b?(o?'Over by '+R(r.sp-r.b):R(r.b-r.sp)+' left'):'No budget set'}${r.avg?' · usually '+R(r.avg)+' a month':''}</small></div></div>`}).join(''):`<div class="empty">${ic('chart','lg')}Add budgets and expenses to compare them.</div>`}</section>`}
+ return fold('bva','Budget vs actual',MF[cur.m],`${rows.length?rows.map(r=>{const o=r.sp>r.b&&r.b>0&&grpOf(r.c)!=='save',w=r.b?Math.min(100,r.sp/r.b*100):100;return `<div class="hr" style="margin-bottom:12px">${tone(r.c.hue,r.c.icon)}<div><div class="t"><span>${esc(r.c.name)}</span><span class="${o?'over':''}">${R(r.sp)} of ${R(r.b)}</span></div><div class="bar"><i style="width:${w}%;background:${o?'var(--bad)':`hsl(${r.c.hue} 75% 48%)`}"></i></div><small class="mute">${r.b?(o?'Over by '+R(r.sp-r.b):R(r.b-r.sp)+' left'):'No budget set'}${r.avg?' · usually '+R(r.avg)+' a month':''}</small></div></div>`}).join(''):`<div class="empty">${ic('chart','lg')}Add budgets and expenses to compare them.</div>`}`)}
 
 function ahead(f){
  return `<section class="panel fade" data-sec="Next 3 months"><div class="sec"><h2>Next 3 months</h2><span class="mute">forecast</span></div>${f.rows.map(r=>`<div class="pr"><span class="l"><span class="dot" style="background:${r.net<0?'var(--bad)':'var(--lime)'}"></span><span><b>${MF[r.m]} ${r.y}</b><small>Income ${R(r.inc)} − bills and debt ${R(r.oblig)} − usual spending ${R(r.usual)}${r.goals?' − goals '+R(r.goals):''}</small></span></span><b class="${r.net<0?'over':''}">${r.net<0?'−':''}${R(Math.abs(r.net))}</b></div>`).join('')}
@@ -37,6 +37,6 @@ function highlights(list){
 let tab='report';
 const setRtab=v=>{tab=v},getRtab=()=>tab;
 function analytics(){const t=tab==='plan';
- return topbar('Report',t?'How your money lines up with what you owe':`${MF[cur.m]} ${cur.y}`)+`<div class="seg" id="rtab" style="align-self:flex-start;margin:0 0 4px"><button data-rtab="report" class="${t?'':'on'}">Report</button><button data-rtab="plan" class="${t?'on':''}">Money plan</button></div>`+(t?plan():report())}
+ return topbar('Report',t?'How your money lines up with what you owe':`${MF[cur.m]} ${cur.y}`,false,true)+`<div class="trow"><div class="seg" id="rtab"><button data-rtab="report" class="${t?'':'on'}">Report</button><button data-rtab="plan" class="${t?'on':''}">Money plan</button></div>${monHtml()}</div>`+(t?plan():report())}
 function plan(){const p=monthPlan(),f=forecast();return highlights(insights(p,f))+match(p)+rule(p)+catTable(p)+ahead(f)}
 export{analytics,setRtab,getRtab};

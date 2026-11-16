@@ -1,6 +1,6 @@
 import {$,esc,peso,ic} from '../util.js';
 import {T,cur,S} from '../state.js';
-import {money,topbar} from '../ui.js';
+import {money,topbar,fold} from '../ui.js';
 const BR=[[0,0,0],[250000,0,.15],[400000,22500,.20],[800000,102500,.25],[2000000,402500,.30],[8000000,2202500,.35]];
 const bracketTax=a=>{let r=BR[0];for(const b of BR)if(a>b[0])r=b;return a<=250000?0:r[1]+(a-r[0])*r[2]};
 const bracketIdx=a=>{let i=0;BR.forEach((b,k)=>{if(a>b[0])i=k});return i};
@@ -32,20 +32,20 @@ function taxRes(){const T=S.tax,g=T.gross;
  </aside></div>${thirteenthHtml(r)}${cutHtml(r)}`}
 function thirteenthHtml(r){const T=S.tax;if(!T.th)return `<section class="panel fade"><div class="sec"><h2>13th month pay</h2><span class="mute">Switched off</span></div><p class="note">Tick "Include 13th month pay" above to see it.</p></section>`;
  const free=Math.min(90000,r.thirteenth+r.ob),room=Math.max(0,90000-r.thirteenth-r.ob);
- return `<section class="panel fade"><div class="sec"><h2>13th month pay</h2><span class="mute">Paid on or before Dec 24</span></div>
+ return fold('th','13th month pay','Paid on or before Dec 24',`
  <p class="note" style="margin-bottom:14px">(${peso(r.basic)} × ${r.mw} months ${r.ab?`− ${peso(r.ab)} absences `:''}) ÷ 12 = <b style="color:var(--ink)">${peso(Math.round(r.thirteenth*100)/100)}</b>. Only basic pay counts. De minimis, allowances and overtime do not.</p>
  <div class="tiles" style="margin-top:0"><div class="tile t-lime"><small>13th month pay</small><div><b class="serif">${peso(Math.round(r.thirteenth))}</b><em>${peso(Math.round(r.thirteenth/12))} builds up each month</em></div></div><div class="tile t-mint"><small>Tax-free room left</small><div><b class="serif">${peso(Math.round(room))}</b><em>of ₱90,000 with other bonuses</em></div></div><div class="tile t-pink"><small>You receive</small><div><b class="serif">${peso(Math.round(r.net13))}</b><em>${r.extraTax?`after ${peso(Math.round(r.extraTax))} tax on ${peso(Math.round(r.excess))} over the limit`:'no tax, no contributions'}</em></div></div></div>
- <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px"><button class="btn" style="background:var(--lime);color:#0f1b1f" data-act="add13">Add ${peso(Math.round(r.net13))} to my budget as December income</button><span class="note">Creates an income entry dated Dec 24, ${cur.y}.</span></div></section>`}
+ <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px"><button class="btn" style="background:var(--lime);color:#0f1b1f" data-act="add13">Add ${peso(Math.round(r.net13))} to my budget as December income</button><span class="note">Creates an income entry dated Dec 24, ${cur.y}.</span></div>`)}
 function cutHtml(r){const C=S.tax.cut,items=[['sss','SSS',r.sss],['ph','PhilHealth',r.ph],['pi','Pag-IBIG',r.pi],['tax','Withholding tax',r.tax]];
  const part=(k,v,i)=>C[k]==='split'?v/2:(C[k]==='15'?(i===0?v:0):(i===1?v:0));
  const cuts=[0,1].map(i=>{const ded=items.map(it=>[it[1],part(it[0],it[2],i)]).filter(d=>d[1]>0),pay=r.basic/2,dm=r.dm/2,net=pay+dm-ded.reduce((s,d)=>s+d[1],0);return{pay,dm,ded,net}});
  const opt=(k,v,l)=>`<option value="${v}" ${C[k]===v?'selected':''}>${l}</option>`;
- return `<section class="panel fade"><div class="sec"><h2>Per payday</h2><span class="mute">15th and 30th cutoffs</span></div>
+ return fold('cut','Per payday','15th and 30th cutoffs',`
  <p class="note" style="margin:-4px 0 14px">Pick the payday each deduction comes out on. Match this to your payslip.</p>
  <div class="cuts">${items.map(it=>`<label class="pill p"><span style="font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap">${it[1]}</span><select data-cut="${it[0]}" style="text-align:right">${opt(it[0],'split','Split in two')}${opt(it[0],'15','15th only')}${opt(it[0],'30','30th only')}</select><span class="ch">${ic('sel','sm')}</span></label>`).join('')}</div>
  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">${cuts.map((c,i)=>`<div class="opt"><small>${i===0?'15th payday':'30th payday (end of month)'}</small><b class="n serif">${peso(Math.round(c.net*100)/100)}</b><small>take-home</small>
  <div class="pr" style="margin-top:8px"><span>Half of monthly compensation</span><b>${peso(c.pay)}</b></div>${c.dm?`<div class="pr"><span>De minimis share</span><b>+${peso(c.dm)}</b></div>`:''}${c.ded.map(d=>`<div class="pr"><span>${d[0]}</span><b>−${peso(Math.round(d[1]*100)/100)}</b></div>`).join('')||'<div class="pr"><span class="mute">No deductions on this payday</span></div>'}</div>`).join('')}</div>
- <p class="note" style="margin-top:12px">Both paydays add up to ${peso(Math.round((cuts[0].net+cuts[1].net)*100)/100)} a month.</p></section>`}
+ <p class="note" style="margin-top:12px">Both paydays add up to ${peso(Math.round((cuts[0].net+cuts[1].net)*100)/100)} a month.</p>`)}
 function tax(){const T=S.tax,g=T.gross,emp=T.mode==='employee';
  return `<section class="panel fade" data-sec="Inputs"><div class="hrow" style="align-items:center"><div class="seg" id="tm"><button data-tm="employee" class="${emp?'on':''}">Employee</button><button data-tm="freelance" class="${!emp?'on':''}">Freelancer</button></div>
  <div class="checks"><label class="chk"><input type="checkbox" id="tlink" ${T.link?'checked':''}>Use my take-home pay as my monthly income (${peso(S.income)})</label>${emp?`<label class="chk"><input type="checkbox" id="tth" ${T.th?'checked':''}>Include 13th month pay</label>`:''}</div></div>

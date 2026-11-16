@@ -1,12 +1,12 @@
 import {$,esc,peso,MN,MF,ic} from '../util.js';
-import {now,cur,q,ft,fc,tl,S,isCur,isPast,cat,calc,budgetOf} from '../state.js';
+import {now,cur,q,ft,fc,tl,S,isCur,isPast,cat,calc,budgetOf,PAGE} from '../state.js';
 import {tone,money,topbar} from '../ui.js';
 import {monthOcc,overdue,upcoming,label,dateTxt,mkey} from '../bills.js';
 import {budgetAlerts} from '../alerts.js';
 function txPart(){const s=calc(),list=s.tx.filter(t=>(ft==='all'||t.type===ft)&&(fc==='all'||t.catId===fc)&&(!q||(t.note+' '+cat(t.catId).name).toLowerCase().includes(q.toLowerCase()))).sort((a,b)=>b.date.localeCompare(a.date)||0);
  const rows=list.slice(0,tl).map(t=>{const c=cat(t.catId),inc=t.type==='income',d=new Date(t.date+'T00:00');
   return `<button class="tr" data-edit="${t.id}">${inc?tone(68,'in'):tone(c.hue,c.icon)}<div class="m"><b>${esc(t.note||c.name)}</b><span>${inc?'Income':'Expense'}<i class="md"> · ${inc?'':esc(c.name)+' · '}${d.getDate()} ${MN[d.getMonth()]}</i></span></div>${inc?'<span class="badge" style="justify-self:start">Income</span>':`<span class="cp tone" style="--h:${c.hue}">${esc(c.name)}</span>`}<div class="dt">${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()}</div><div class="am ${inc?'in':''}">${inc?'+':'−'}${peso(t.amount)}</div><span class="go">${ic('edit','sm')}</span></button>`}).join('');
- return{count:list.length,html:(rows||`<div class="empty">${ic('wallet','lg')}${S.tx.length?'No matches.':'No transactions in '+MF[cur.m]+' yet.'}</div>`)+(list.length>tl?`<button class="btn g more" data-act="more">Show ${Math.min(30,list.length-tl)} more</button>`:'')}}
+ return{count:list.length,html:(rows||`<div class="empty">${ic('wallet','lg')}${S.tx.length?'No matches.':'No transactions in '+MF[cur.m]+' yet.'}</div>`)+(list.length>tl?`<button class="btn g more" data-act="more">Show ${Math.min(PAGE(),list.length-tl)} more</button>`:'')}}
 // Shows the top budget alerts for this month on Overview.
 function budgetBar(){if(!isCur())return '';const a=budgetAlerts(now.getFullYear(),now.getMonth());if(!a.length)return '';const over=a.filter(x=>x.lvl==='over').length;
  return `<section class="panel fade alertbar" data-nojump><div class="hrow" style="align-items:center"><div style="display:flex;gap:12px;align-items:center"><span class="tone ico" style="--h:${over?356:38}">${ic('alert')}</span><div><b>${a.length} budget alert${a.length>1?'s':''}${over?`, ${over} over`:''}</b><p class="sub" style="margin-top:2px">${a.slice(0,2).map(x=>esc(x.t)).join(' · ')}${a.length>2?' · and more':''}</p></div></div><button class="btn sm" data-v2="budgets">Review budgets</button></div></section>`}

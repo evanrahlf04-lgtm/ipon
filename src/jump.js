@@ -1,7 +1,7 @@
 import {$,esc} from './util.js';
 
 // Sticky "jump to" bar: one chip per section of the current page.
-const MIN=3;
+const MIN=4;
 const still=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 // Sections are anything tagged data-sec, plus panels whose first heading names them.
@@ -41,7 +41,9 @@ export function buildJump(){
  bar=document.createElement('nav');
  bar.className='jump';bar.setAttribute('aria-label','Jump to section');
  bar.innerHTML=secs.map((el,i)=>`<button type="button" data-jump="${i}">${esc(el.dataset.sec)}</button>`).join('');
- top.after(bar);
+ // Page-level tab switches come first, section chips after them.
+ let at=top;while(at.nextElementSibling&&at.nextElementSibling.matches('.seg,.trow'))at=at.nextElementSibling;
+ at.after(bar);
  spy();
 }
 
@@ -49,6 +51,7 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('[data-jump]');if(!b)return;
  secs=sections();
  const el=secs.find(s=>s.dataset.sec===b.textContent)||secs[+b.dataset.jump];if(!el)return;
+ if(el.tagName==='DETAILS')el.open=true;
  el.scrollIntoView({behavior:still()?'auto':'smooth',block:'start'});
 });
 addEventListener('scroll',spy,{passive:true});

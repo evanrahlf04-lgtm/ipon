@@ -2,7 +2,7 @@ import {pad,ds,HUES} from './util.js';
 import {dueLeft} from './bills.js';
 const KEY='ipon-v6',TK='ipon-theme';
 const now=new Date(),T=ds(now.getFullYear(),now.getMonth(),now.getDate());
-let cur={y:now.getFullYear(),m:now.getMonth()},view='home',q='',ft='all',fc='all',tl=30,user=null,savedAt=0,saveHook=null;
+let cur={y:now.getFullYear(),m:now.getMonth()},view='home',q='',ft='all',fc='all',tl=innerWidth<861?12:30,user=null,savedAt=0,saveHook=null;
 const setCur=v=>{cur=v},setView=v=>{view=v},setQ=v=>{q=v},setFt=v=>{ft=v},setFc=v=>{fc=v},setTl=v=>{tl=v},setS=v=>{S=v},setUser=v=>{user=v},setSaveHook=v=>{saveHook=v};
 const isCur=()=>cur.y===now.getFullYear()&&cur.m===now.getMonth();
 const isPast=()=>cur.y<now.getFullYear()||(cur.y===now.getFullYear()&&cur.m<now.getMonth());
@@ -49,4 +49,6 @@ function calc(){const k=mk(),tx=S.tx.filter(t=>t.date.startsWith(k)),by={};let e
  const proj=isCur()?spent+(day?variable/day*(dm-day):0)+unpaid:spent;
  const daysLeft=isCur()?dm-day+1:0,free=isCur()&&daysLeft?Math.max(0,left-unpaid)/daysLeft:0;
  return{tx,by,spent,saved,income,left,unpaid,proj,free,budget:S.cats.reduce((a,c)=>a+budgetOf(c),0),day,dm}}
-export {KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,GROUPS,grpOf,budgetOf};
+// Rows shown in the transaction list at a time: fewer on phones.
+const PAGE=()=>innerWidth<861?12:30;
+export {PAGE,KEY,TK,now,T,cur,view,q,ft,fc,tl,S,user,setTl,setCur,setView,setQ,setFt,setFc,setS,setUser,setSaveHook,isCur,isPast,dim,emptyState,norm,loadLocal,clearLocal,adopt,getSavedAt,save,mk,cat,monthSum,calc,paySum,baseIncome,incomeRef,GROUPS,grpOf,budgetOf};

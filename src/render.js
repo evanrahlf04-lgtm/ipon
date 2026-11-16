@@ -22,7 +22,7 @@ function countUp(root){
  cancelAnimationFrame(raf);
  const els=[...root.querySelectorAll('[data-count]')];
  if(!els.length||still())return;
- const t0=performance.now(),D=650;
+ const t0=performance.now(),D=420;
  const step=t=>{
   const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);
   els.forEach(el=>{el.innerHTML=money(Math.round(+el.dataset.count*e))});
@@ -31,10 +31,14 @@ function countUp(root){
  raf=requestAnimationFrame(step);
 }
 
+// After a re-render the focused control is rebuilt, so find the same one again and focus it.
+function focusKey(el){const m=$('#main');if(!el||!m||!m.contains(el))return null;if(el.id)return '#'+el.id;for(const a of el.attributes)if(a.name.startsWith('data-')&&a.name!=='data-sec')return '['+a.name+'="'+CSS.escape(a.value)+'"]';return null}
 function render(){
  const main=$('#main'),month=`${cur.y}-${cur.m}`;
  const kind=lastView!==view?'enter':lastMonth!==month?'swap':'';
+ const fk=lastView===view?focusKey(document.activeElement):null;
  main.innerHTML=views[view]();
+ if(fk){const el=main.querySelector(fk);if(el)el.focus({preventScroll:true})}
  document.querySelectorAll('.nav[data-v]').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.setAttribute('aria-current',b.dataset.v===view?'page':'false')});
  const fab=$('#fab'),fa=view==='bills'&&getPtab()==='debts'?['adddebt','Add debt']:view==='tax'&&getStab()==='track'?['addpay','Log pay']:FAB[view];if(fab){fab.hidden=!fa;if(fa){fab.dataset.act=fa[0];fab.dataset.ty='expense';fab.setAttribute('aria-label',fa[1]);fab.title=fa[1]}}
  // Red dot on the Payables button while anything is overdue or due within 3 days.
