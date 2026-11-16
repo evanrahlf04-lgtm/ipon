@@ -1,4 +1,4 @@
-import {pad,ds,HUES} from './util.js';
+import {pad,ds,HUES,setCurrency} from './util.js';
 import {dueLeft} from './bills.js';
 import {clean} from './sanitize.js';
 const KEY='ipon-v6',TK='ipon-theme';
@@ -16,7 +16,7 @@ function norm(old){const t=Object.assign({},old||S.tax||{});
  if(t.link===undefined){if(S.income>0){if(!(t.gross>0))t.gross=S.income;t.link=false}else t.link=true}
  // Bills used to be categories with a due day. Move them into their own list once.
  if(!Array.isArray(S.bills)){const nk=`${now.getFullYear()}-${pad(now.getMonth()+1)}`;S.bills=(S.cats||[]).filter(c=>c.due>0&&c.budget>0).map(c=>({id:'b'+c.id,name:c.name,amount:c.budget,rep:'monthly',due:c.due,catId:c.id,from:(S.tx||[]).filter(t=>t.catId===c.id).map(t=>t.date.slice(0,7)).sort()[0]||nk,lg:1}));(S.cats||[]).forEach(c=>{c.due=0})}
- S.tax=Object.assign({mode:'employee',track:false,fopt:'8',link:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},t);S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.bills=S.bills||[];S.debts=S.debts||[];S.pay=S.pay||[];S.alerts=Object.assign({on:true,warn:80},S.alerts||{});S.debtPlan=Object.assign({extra:0,method:'avalanche'},S.debtPlan||{});S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0;syncGoals()}
+ S.tax=Object.assign({mode:'employee',track:false,fopt:'8',link:true,gross:0,th:true,dm:0,mw:12,abs:0,ob:0},t);S.tax.cut=Object.assign({sss:'split',ph:'split',pi:'split',tax:'15'},S.tax.cut||{});S.cats=S.cats||[];S.bills=S.bills||[];S.debts=S.debts||[];S.pay=S.pay||[];S.currency=S.currency||'PHP';setCurrency(S.currency);S.alerts=Object.assign({on:true,warn:80},S.alerts||{});S.debtPlan=Object.assign({extra:0,method:'avalanche'},S.debtPlan||{});S.goals=S.goals||[];S.tx=S.tx||[];S.income=S.income||0;syncGoals()}
 // Saved so far = what was already saved before tracking (base) plus every contribution logged for the goal.
 function syncGoals(){S.goals.forEach(g=>{if(g.base===undefined)g.base=g.saved||0;g.saved=Math.max(0,g.base+S.tx.reduce((a,t)=>a+(t.goalId===g.id&&t.type==='expense'?t.amount:0),0))})}
 norm();

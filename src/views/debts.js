@@ -1,4 +1,4 @@
-import {esc,peso,MN,ic} from '../util.js';
+import {esc,peso,MN,ic,sym} from '../util.js';
 import {now,S,incomeRef} from '../state.js';
 import {tone} from '../ui.js';
 import {withBal,simulate} from '../debts.js';
@@ -31,5 +31,5 @@ function debts(){
   const t=TYPES[d.type]||TYPES.other,orig=Math.max(d.orig||d.bal0,d.cur,1),p=Math.min(100,Math.max(0,(1-d.cur/orig)*100)),done=d.cur<=.005,one=done?null:simulate([d],0,'avalanche');
   const pace=done?{t:'Paid off',cls:'ok'}:one.ok?{t:`Debt-free by ${when(one.months)} at the minimum`,cls:''}:{t:'The minimum does not cover the interest',cls:'late'};
   return `<div class="bc"><div class="h">${tone(d.hue||356,t[1])}<button class="n" data-editdebt="${d.id}"><b>${esc(d.name)}</b><span class="s">${t[0]} · ${d.apr||0}% a year${d.min?` · min ${peso(d.min)}`:''}</span></button>${done?'':`<button class="btn sm g" data-paydebt="${d.id}">${ic('plus','sm')}Pay</button>`}</div><div class="bar"><i style="width:${p}%;background:var(--accent)"></i></div><div class="f"><span>${peso(d.cur)} left${orig>d.cur?` of ${peso(orig)}`:''}</span><span>${Math.round(p)}% paid</span></div><div class="pace ${pace.cls}">${ic(pace.cls==='late'?'alert':pace.cls==='ok'?'check':'cal','sm')}${pace.t}</div></div>`}).join('')}</div></section>
- ${list.some(d=>d.cur>.005)?`<section class="panel fade" data-sec="Payoff plan"><div class="sec"><h2>Payoff plan</h2></div><div class="hrow" style="align-items:center;margin-bottom:14px"><div class="seg">${seg('avalanche','Highest rate first')}${seg('snowball','Smallest first')}</div><label class="fld" style="max-width:240px">Extra each month (₱)<input id="dx" type="number" inputmode="decimal" min="0" step="any" value="${P.extra||''}" placeholder="0"></label></div><div id="planres">${planHtml()}</div></section>`:''}`}
+ ${list.some(d=>d.cur>.005)?`<section class="panel fade" data-sec="Payoff plan"><div class="sec"><h2>Payoff plan</h2></div><div class="hrow" style="align-items:center;margin-bottom:14px"><div class="seg">${seg('avalanche','Highest rate first')}${seg('snowball','Smallest first')}</div><label class="fld" style="max-width:240px">Extra each month (${sym()})<input id="dx" type="number" inputmode="decimal" min="0" step="any" value="${P.extra||''}" placeholder="0"></label></div><div id="planres">${planHtml()}</div></section>`:''}`}
 export{debts,planHtml,TYPES};

@@ -62,6 +62,7 @@ export function clean(d){
  if(Array.isArray(d.debts))out.debts=list(d.debts,LIMIT.other).map(debt);
  if(Array.isArray(d.pay))out.pay=list(d.pay,LIMIT.other).map(pay).filter(Boolean);
  const t=tax(d.tax);if(t)out.tax=t;
+ if(typeof d.currency==='string'&&/^[A-Z]{3}$/.test(d.currency))out.currency=d.currency;
  if(isObj(d.alerts)){out.alerts={};if(typeof d.alerts.on==='boolean')out.alerts.on=d.alerts.on;put(out.alerts,'warn',int(d.alerts.warn,50,100,undefined))}
  if(isObj(d.debtPlan)){out.debtPlan={};put(out.debtPlan,'extra',num(d.debtPlan.extra,0,MAXN,undefined));if(['avalanche','snowball'].includes(d.debtPlan.method))out.debtPlan.method=d.debtPlan.method}
  return out}

@@ -1,4 +1,4 @@
-import {esc,peso,MN,MF,ic} from '../util.js';
+import {esc,peso,MN,MF,ic,php,curCode} from '../util.js';
 import {now,cur,S,mk,paySum} from '../state.js';
 import {tone,topbar,monHtml,fold} from '../ui.js';
 import {tax,takeHome} from './tax.js';
@@ -17,9 +17,9 @@ function taxPanel(y){
  const opts=Object.entries(OPTS).map(([k,v])=>`<option value="${k}" ${o===k?'selected':''}>${v}</option>`).join('');
  return fold('ftax'+y,`Freelancer tax ${y}`,'',`<div style="margin-bottom:12px"><button class="btn sm" data-act="taxpay">${ic('plus','sm')}Tax payment</button></div>
  <label class="fld" style="margin-bottom:14px">Tax option you chose<select id="fopt">${opts}</select></label>
- <div class="tiles" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"><div class="tile t-lime"><small>Receipts so far</small><div><b class="serif">${peso(Math.round(q.receipts))}</b><em>freelance, received in ${y}</em></div></div><div class="tile t-mint"><small>Tax estimate</small><div><b class="serif">${peso(Math.round(q.tax))}</b><em>on receipts so far</em></div></div><div class="tile t-pink"><small>Still to set aside</small><div><b class="serif">${peso(Math.round(left))}</b><em>${peso(Math.round(paid))} paid so far</em></div></div></div>
- <div style="margin-top:14px">${q.rows.map(r=>{const d=dayDiff(r.due),past=d<0;return `<div class="pr"><span class="l"><span class="dot" style="background:${past?'var(--ink);opacity:.25':'var(--lime)'}"></span><span><b>${r.q} · ${r.span}</b><small>${r.q==='Annual'?'Annual return':'Quarterly return'} due ${dt(r.due)} · ${past?'passed':d===0?'today':'in '+d+' days'} · receipts ${peso(Math.round(r.inQ))}</small></span></span><b>${r.add>0?'Set aside '+peso(Math.round(r.add)):'Nothing new'}</b></div>`}).join('')}</div>
- <p class="note" style="margin-top:12px">Estimate only. Quarterly returns use receipts so far this year, and the tax option you pick in your first quarterly return applies for the whole year. Use the Tax payment button to record what you paid, and confirm amounts with the BIR or an accountant.</p>`,'Freelancer tax')}
+ <div class="tiles" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"><div class="tile t-lime"><small>Receipts so far</small><div><b class="serif">${php(Math.round(q.receipts))}</b><em>freelance, received in ${y}</em></div></div><div class="tile t-mint"><small>Tax estimate</small><div><b class="serif">${php(Math.round(q.tax))}</b><em>on receipts so far</em></div></div><div class="tile t-pink"><small>Still to set aside</small><div><b class="serif">${php(Math.round(left))}</b><em>${php(Math.round(paid))} paid so far</em></div></div></div>
+ <div style="margin-top:14px">${q.rows.map(r=>{const d=dayDiff(r.due),past=d<0;return `<div class="pr"><span class="l"><span class="dot" style="background:${past?'var(--ink);opacity:.25':'var(--lime)'}"></span><span><b>${r.q} · ${r.span}</b><small>${r.q==='Annual'?'Annual return':'Quarterly return'} due ${dt(r.due)} · ${past?'passed':d===0?'today':'in '+d+' days'} · receipts ${php(Math.round(r.inQ))}</small></span></span><b>${r.add>0?'Set aside '+php(Math.round(r.add)):'Nothing new'}</b></div>`}).join('')}</div>
+ <p class="note" style="margin-top:12px">${curCode()!=='PHP'?'Shown in pesos, as Philippine tax is worked out in pesos. ':''}Estimate only. Quarterly returns use receipts so far this year, and the tax option you pick in your first quarterly return applies for the whole year. Use the Tax payment button to record what you paid, and confirm amounts with the BIR or an accountant.</p>`,'Freelancer tax')}
 
 function tracker(){
  const y=cur.y,list=monthPay(cur.y,cur.m).filter(p=>p.paid),recv=paySum(cur.y,cur.m),wait=waiting(),waitSum=sum(wait);

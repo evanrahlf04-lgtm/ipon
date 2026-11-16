@@ -1,8 +1,9 @@
-import {$,esc,pad,MN,ic} from './util.js';
+import {$,esc,pad,MN,ic,curNow} from './util.js';
 import {T,cur,S,user} from './state.js';
 const tone=(h,icn,cls='ico')=>`<span class="tone ${cls}" style="--h:${Number(h)||0}">${ic(icn)}</span>`;
 function toast(m,undo){const t=$('#toast');t.innerHTML=`<div class="toast" role="status">${esc(m)}${undo?'<button id="undo">Undo</button>':''}</div>`;clearTimeout(toast.h);const hide=()=>{const e=t.firstElementChild;if(!e)return;e.classList.add('out');setTimeout(()=>{if(t.firstElementChild===e)t.innerHTML=''},200)};toast.h=setTimeout(hide,undo?5000:2400);if(undo)$('#undo').onclick=()=>{undo();clearTimeout(toast.h);hide()}}
-const money=n=>{const a=Math.abs(n),w=Math.floor(a),c=Math.round((a-w)*100);return(n<0?'−':'')+'₱'+w.toLocaleString('en-PH')+(c?`<small>.${pad(c)}</small>`:'')};
+// Large figure with small decimals, in the chosen currency (or a fixed one, such as pesos for tax).
+const money=(n,C=curNow())=>{const a=Math.abs(n),m=10**C.dp;let w=Math.floor(a),c=C.dp?Math.round((a-w)*m):0;if(!C.dp)w=Math.round(a);if(c>=m){w++;c=0}return(n<0?'−':'')+C.sym+w.toLocaleString('en-US')+(c?`<small>.${String(c).padStart(C.dp,'0')}</small>`:'')};
 const monHtml=()=>`<div class="mon"><button data-m="-1" aria-label="Previous month">${ic('l','sm')}</button><span>${MN[cur.m]} ${cur.y}</span><button data-m="1" aria-label="Next month">${ic('r','sm')}</button></div>`;
 // tabbed: the page has a tab row, so on phones the month stepper moves down onto that row.
 // Collapsible panel. Open by default on wide screens and closed on phones, and it remembers what you toggled.

@@ -1,4 +1,4 @@
-import {$,ic} from './util.js';
+import {$,ic,curCode} from './util.js';
 import {T,S,save,cat} from './state.js';
 import {toast} from './ui.js';
 async function saveFile(name,data,mime){
@@ -7,5 +7,5 @@ async function saveFile(name,data,mime){
  try{await navigator.clipboard.writeText(data);toast('Copied to clipboard')}catch(e){toast('Export unavailable here')}}
 // Cells that start with = + - @ would run as formulas in a spreadsheet, so mark them as text.
 const safe=v=>{v=String(v==null?'':v);return /^[=+\-@\t\r]/.test(v)?"'"+v:v};
-function csv(){const r=[['Date','Type','Category','Note','Amount (PHP)']];S.tx.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>r.push([t.date,t.type,safe(t.type==='income'?'':cat(t.catId).name),safe(t.note),t.amount]));return r.map(x=>x.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n')}
+function csv(){const r=[['Date','Type','Category','Note','Amount ('+curCode()+')']];S.tx.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>r.push([t.date,t.type,safe(t.type==='income'?'':cat(t.catId).name),safe(t.note),t.amount]));return r.map(x=>x.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n')}
 export {saveFile,csv};

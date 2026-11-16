@@ -1,9 +1,9 @@
-import {$,peso,ds,HUES,uid,ic,MN} from './util.js';
+import {$,peso,ds,HUES,uid,ic,MN,sym,php} from './util.js';
 import {T,cur,tl,S,setCur,setView,setQ,setFt,setFc,setTl,setS,isCur,dim,emptyState,norm,save,mk,cat,calc,PAGE,clean} from './state.js';
 import {signOut} from './session.js';
 import {toggleTheme} from './theme.js';
 import {toast} from './ui.js';
-import {modal,fld,amt,openTx,catModal,goalModal,accountSheet,billModal,payModal,debtModal,debtPayModal,payEntryModal,recvModal,taxPayModal,fundModal} from './modals.js';
+import {modal,fld,amt,openTx,catModal,goalModal,accountSheet,billModal,payModal,debtModal,debtPayModal,payEntryModal,recvModal,taxPayModal,fundModal,currencyModal} from './modals.js';
 import {settleGoal} from './goals.js';
 import {setStab} from './views/salary.js';
 import {setBscope,getBscope} from './views/budgets.js';
@@ -21,7 +21,7 @@ import {taxRes,empCalc,syncIncome} from './views/tax.js';
 import {txPart} from './views/home.js';
 // Re-draws only the transaction list so typing in search never rebuilds the whole page.
 // Keeps the "use my take-home" label showing the current income while typing.
-function linkLabel(){const c=$('#tlink');if(c&&c.nextSibling)c.nextSibling.textContent='Use my take-home pay as my monthly income ('+peso(S.income)+')'}
+function linkLabel(){const c=$('#tlink');if(c&&c.nextSibling)c.nextSibling.textContent='Use my take-home pay as my monthly income ('+php(S.income)+')'}
 function refreshList(){const l=$('#txlist');if(!l)return;const p=txPart();l.innerHTML=p.html;const c=$('#tcount');if(c)c.textContent=p.count+' total'}
 document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]'),act=A&&A.dataset.act;
  const nv=t.closest('.nav[data-v]');if(nv){setView(nv.dataset.v);render();return window.scrollTo({top:0})}
@@ -63,7 +63,7 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  if(act==='add'&&(A.dataset.ty||'expense')==='expense'&&!S.cats.length)return toast('Add a category first');
  if(act==='add')return openTx({id:uid(),date:isCur()?T:ds(cur.y,cur.m,1),type:A.dataset.ty||'expense',catId:S.cats[0]&&S.cats[0].id,amount:'',note:''},true);
  if(act==='income'){const extra=calc().income-S.income;
-  return modal('Monthly income',fld('Monthly income (₱)','a','number',`inputmode="decimal" step="0.01" min="0" required value="${S.income||''}" placeholder="0"`,'big')+`<p class="note">This amount counts in every month. Income you log as a transaction is added to that one month only${extra>0?` (this month has ${peso(extra)} extra)`:''}.${S.tax.track?' Right now your Pay log sets your income, so this fixed amount is not used until you turn that off on the Salary page.':''}${S.tax.link?' Right now it follows your take-home pay from the Salary page, and saving a different amount stops that.':''}</p>`,f=>{const v=parseFloat(f.get('a'));if(!(v>=0))return false;if(v!==S.income)S.tax.link=false;S.income=v;toast('Income updated')})}
+  return modal('Monthly income',fld('Monthly income ('+sym()+')','a','number',`inputmode="decimal" step="0.01" min="0" required value="${S.income||''}" placeholder="0"`,'big')+`<p class="note">This amount counts in every month. Income you log as a transaction is added to that one month only${extra>0?` (this month has ${peso(extra)} extra)`:''}.${S.tax.track?' Right now your Pay log sets your income, so this fixed amount is not used until you turn that off on the Salary page.':''}${S.tax.link?' Right now it follows your take-home pay from the Salary page, and saving a different amount stops that.':''}</p>`,f=>{const v=parseFloat(f.get('a'));if(!(v>=0))return false;if(v!==S.income)S.tax.link=false;S.income=v;toast('Income updated')})}
  if(act==='useNet'){const T=S.tax,old=S.income,ol=T.link;T.link=true;syncIncome();save();render();return toast(`Income now follows your take-home, ${peso(S.income)}`,()=>{S.income=old;T.link=ol;save();render()})}
  if(act==='add13'){const T=S.tax,r=empCalc(T.gross,T.th,T.dm),e={id:uid(),date:`${cur.y}-12-24`,type:'income',catId:null,amount:Math.round(r.net13*100)/100,note:'13th month pay'};S.tx.push(e);save();render();return toast('Added to December income',()=>{S.tx=S.tx.filter(x=>x!==e);save();render()})}
  if(act==='csv')return saveFile(`ipon-transactions.csv`,csv(),'text/csv');
@@ -79,6 +79,7 @@ document.addEventListener('click',e=>{const t=e.target,A=t.closest('[data-act]')
  if(act==='signout')return signOut();
  if(act==='more'){setTl(tl+PAGE());return refreshList()}
  if(act==='theme'){toggleTheme();return accountSheet()}
+ if(act==='currency')return currencyModal();
  if(act==='account')return accountSheet()});
 document.addEventListener('change',e=>{if(e.target.id==='alon'){S.alerts.on=e.target.checked;save();return render()}if(e.target.id==='alwarn'){S.alerts.warn=+e.target.value;save();return render()}if(e.target.id==='ttrack'){S.tax.track=e.target.checked;save();return render()}if(e.target.id==='fopt'){S.tax.fopt=e.target.value;save();return render()}if(e.target.id==='pst'){$('#pdue').hidden=e.target.value==='in';return}if(e.target.id==='brep'){$('#bmo').hidden=e.target.value==='once';$('#bon').hidden=e.target.value!=='once';return}if(e.target.id==='t13m'||e.target.id==='t13a'||e.target.id==='t13o'){const k={t13m:'mw',t13a:'abs',t13o:'ob'}[e.target.id];S.tax[k]=Math.max(0,parseFloat(e.target.value)||0);save();$('#taxres').innerHTML=taxRes();return}if(e.target.dataset&&e.target.dataset.cut){S.tax.cut[e.target.dataset.cut]=e.target.value;save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='tlink'){S.tax.link=e.target.checked;syncIncome();save();return render()}if(e.target.id==='tth'){S.tax.th=e.target.checked;save();return render()}if(e.target.id==='fc'){setFc(e.target.value);setTl(PAGE());return refreshList()}if(e.target.id==='ft2'){setFt(e.target.value);setTl(PAGE());return refreshList()}const b=e.target.closest('[data-bud]');if(b){const c=cat(b.dataset.bud),v=parseFloat(b.value);if(v>=0){if(getBscope()==='month'&&v!==c.budget){c.mb=Object.assign(c.mb||{},{[mk()]:v})}else{if(getBscope()==='month'&&c.mb)delete c.mb[mk()];else c.budget=v}save();setTimeout(render,0);toast(getBscope()==='month'?'Budget set for '+MN[cur.m]:'Budget updated')}}});
 document.addEventListener('input',e=>{if(e.target.id==='dx'){S.debtPlan.extra=Math.max(0,parseFloat(e.target.value)||0);save();$('#planres').innerHTML=planHtml();return}if(e.target.id==='t13a'||e.target.id==='t13o'){S.tax[e.target.id==='t13a'?'abs':'ob']=Math.max(0,parseFloat(e.target.value)||0);save();$('#taxres').innerHTML=taxRes();return}if(e.target.id==='tdm'){S.tax.dm=Math.max(0,parseFloat(e.target.value)||0);syncIncome();save();$('#taxres').innerHTML=taxRes();linkLabel();return}if(e.target.id==='tg'){S.tax.gross=Math.max(0,parseFloat(e.target.value)||0);syncIncome();save();$('#taxres').innerHTML=taxRes();linkLabel();return}if(e.target.id==='q'){setQ(e.target.value);setTl(PAGE());refreshList()}});

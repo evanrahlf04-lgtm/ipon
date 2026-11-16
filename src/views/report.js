@@ -1,11 +1,11 @@
-import {$,esc,peso,MN,MF,ic} from '../util.js';
+import {$,esc,peso,MN,MF,ic,sym} from '../util.js';
 import {now,cur,ft,S,mk,cat,monthSum,calc,baseIncome} from '../state.js';
 import {tone,topbar} from '../ui.js';
 function trendHtml(){
  const nowI=now.getFullYear()*12+now.getMonth(),curI=cur.y*12+cur.m;let end=Math.max(nowI,curI),start=end-5;if(curI<start){start=curI;end=start+5}
  const ms=[];for(let i=start;i<=end;i++){const y=Math.floor(i/12),m=i%12,s=monthSum(y,m);ms.push({i,y,m,e:s.e,inc:s.i,has:S.tx.some(t=>t.date.startsWith(mk(y,m))),cur:i===curI})}
  const top=Math.max(baseIncome(),...ms.map(x=>x.e)),max=Math.ceil(top/10000)*10000||10000;
- const K=v=>v>=1000?'₱'+String(Math.round(v/100)/10).replace(/\.0$/,'')+'K':'₱'+Math.round(v);
+ const K=v=>v>=1000?sym()+String(Math.round(v/100)/10).replace(/\.0$/,'')+'K':sym()+Math.round(v);
  const withData=ms.filter(x=>x.has&&x.e>0),avg=withData.length?withData.reduce((s,x)=>s+x.e,0)/withData.length:0,hi=withData.slice().sort((a,b)=>b.e-a.e)[0];
  const c=ms.find(x=>x.cur),p=ms.find(x=>x.i===curI-1),delta=c&&p&&p.has&&c.has?c.e-p.e:null;
  const grid=[0,1,2,3,4].map(k=>`<div class="gl" style="bottom:${k*25}%"><span>${K(max/4*k)}</span></div>`).join('');

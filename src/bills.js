@@ -1,7 +1,7 @@
 // Payables: bills repeat monthly or happen once. Each month a bill shows up as one "occurrence"
 // that can be paid in parts. Payments are expense transactions tagged with billId and bm (the month they settle).
 import {S,now} from './state.js';
-import {pad,ds,MN} from './util.js';
+import {pad,ds,MN,peso} from './util.js';
 
 const mkey=(y,m)=>{const d=new Date(y,m,1);return`${d.getFullYear()}-${pad(d.getMonth()+1)}`};
 const dayIn=(y,m)=>new Date(y,m+1,0).getDate();
@@ -49,7 +49,7 @@ function label(o){
  if(o.st==='late')return`Overdue ${-o.days} day${o.days===-1?'':'s'}${part}`;
  if(o.st==='today')return`Due today${part}`;
  return(o.days<=31?`Due in ${o.days} day${o.days===1?'':'s'}`:`Due ${dateTxt(o.date)}`)+part}
-const rs=n=>'₱'+n.toLocaleString('en-PH',{maximumFractionDigits:2});
+const rs=n=>peso(n);
 const dateTxt=d=>{const x=new Date(d+'T00:00');return`${MN[x.getMonth()]} ${x.getDate()}`};
 // Keep a category's budget large enough to cover its monthly bills.
 function fitBudget(id){const c=S.cats.find(x=>x.id===id);if(!c)return;const t=S.bills.filter(x=>x.catId===id&&x.rep==='monthly').reduce((a,x)=>a+x.amount,0);if(c.budget<t)c.budget=t}
