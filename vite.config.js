@@ -48,7 +48,7 @@ export default defineConfig({
       manifest: {
         name: 'Tally',
         short_name: 'Tally',
-        description: 'Mag-ipon tayo. Budget, goals and Philippine tax estimates.',
+        description: 'Budget, bills, debts and Philippine tax estimates.',
         theme_color: '#f3eeea',
         background_color: '#ebe8fb',
         display: 'standalone',

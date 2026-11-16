@@ -9,7 +9,8 @@ function curInfo(code){try{const f=new Intl.NumberFormat('en',{style:'currency',
 let CUR=PHP;
 const setCurrency=code=>{const c=CURRENCIES.some(x=>x[0]===code)?code:'PHP';if(c!==CUR.code)CUR=c==='PHP'?PHP:curInfo(c)};
 const curNow=()=>CUR,sym=()=>CUR.sym,curCode=()=>CUR.code;
-function fmtMoney(n,c){const v=Math.abs(n||0),w=c.dp===0||Math.abs(v-Math.round(v))<.005;return(n<0?'−':'')+c.sym+v.toLocaleString('en-US',{minimumFractionDigits:w?0:c.dp,maximumFractionDigits:w?0:c.dp})}
+// One format everywhere: every amount shows its currency's full decimals (₱8,000.00, ¥1,235), so columns line up and nothing looks rounded.
+function fmtMoney(n,c){const v=Math.abs(n||0);return(n<0?'−':'')+c.sym+v.toLocaleString('en-US',{minimumFractionDigits:c.dp,maximumFractionDigits:c.dp})}
 // Amounts in the chosen currency, and amounts that are always pesos (Philippine tax).
 const peso=n=>fmtMoney(n,CUR),php=n=>fmtMoney(n,PHP);
 const pad=n=>String(n).padStart(2,'0'),ds=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
